@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Vibe Clicker</title>
+    <!-- Подключаем Telegram WebApp SDK -->
+    <script src="https://telegram.org"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e1e2f, #111119);
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .score-container {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .coin {
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, #ffe066, #f5b041);
+            border-radius: 50%;
+            box-shadow: 0 10px 30px rgba(245, 176, 65, 0.4), inset 0 0 20px rgba(255, 255, 255, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5rem;
+            cursor: pointer;
+            transition: transform 0.05s ease;
+            position: relative;
+        }
+
+        .coin:active {
+            transform: scale(0.95);
+        }
+
+        /* Анимация всплывающих цифр +1 */
+        .click-floating {
+            position: absolute;
+            color: #ffe066;
+            font-size: 2rem;
+            font-weight: bold;
+            animation: floatUp 0.6s ease-out forwards;
+            pointer-events: none;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-100px) scale(1.2); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="score-container">
+        🪙 <span id="score">0</span>
+    </div>
+
+    <div class="coin" id="coinBtn">🚀</div>
+
+    <script>
+        // Инициализируем Telegram WebApp
+        const tg = window.Telegram.WebApp;
+        tg.expand(); // Раскрываем на весь экран
+
+        const scoreEl = document.getElementById('score');
+        const coinBtn = document.getElementById('coinBtn');
+
+        // Получаем ID пользователя из Telegram. Если открыто в браузере, ставим 0
+        const userId = tg.initDataUnsafe?.user?.id || 0;
+        let score = 0;
+
+        // URL твоего бэкенда (пока локально)
+        const BACKEND_URL = 'http://127.0.0.1:8000';
+
+        // Загружаем текущий баланс игрока из базы данных при старте
+        async function loadScore() {
+            try {
+                const response = await fetch(`${BACKEND_URL}/get_balance?user_id=${userId}`);
+                const data = await response.json();
+                score = data.balance;
+                scoreEl.textContent = score;
+            } catch (err) {
+                console.error("Ошибка загрузки баланса:", err);
+            }
+        }
+
+        // Отправляем клик на сервер
+        async function sendClick() {
+            try {
+                const response = await fetch(`${BACKEND_URL}/click`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: userId })
+                });
+                const data = await response.json();
+                score = data.balance;
+                scoreEl.textContent = score;
+            } catch (err) {
+                // Если сервер недоступен, все равно прибавляем визуально для вайба
+                score++;
+                scoreEl.textContent = score;
+            }
+        }
+
+        // Обработка клика по монетке
+        coinBtn.addEventListener('click', (e) => {
+            sendClick();
+
+            // Создаем красивую всплывающую цифру "+1" в месте клика
+            const clickText = document.createElement('div');
+            clickText.classList.add('click-floating');
+            clickText.textContent = '+1';
+            
+            // Позиционируем цифру
+            const rect = coinBtn.getBoundingClientRect();
+            clickText.style.left = `${e.clientX - rect.left}px`;
+            clickText.style.top = `${e.clientY - rect.top}px`;
+            
+            coinBtn.appendChild(clickText);
+
+            // Удаляем элемент после завершения анимации
+            setTimeout(() => {
+                clickText.remove();
+            }, 600);
+        });
+
+        // Запускаем загрузку данных при открытии
+        loadScore();
+    </script>
+</body>
+</html>
