@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Vibe Clicker</title>
-    <!-- Подключаем Telegram WebApp SDK -->
+    <title>Wolf Clicker</title>
     <script src="https://telegram.org"></script>
     <style>
         body {
@@ -26,46 +25,76 @@
         .score-container {
             font-size: 3rem;
             font-weight: bold;
-            margin-bottom: 20px;
-            text-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+            margin-bottom: 25px;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
+        /* Обновленный дизайн монетки со львом Stratton Oakmont */
         .coin {
-            width: 200px;
-            height: 200px;
-            background: radial-gradient(circle, #ffe066, #f5b041);
+            width: 230px;
+            height: 230px;
+            background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAADICAYAAACtWK6eAAAACXBIWXMAAAsTAAALEwEAmpwYAAAKT2lDQ1BQaG90b3Nob3AgSUNDIHByb2ZpbGUAAHjanVNnVFPpFj333vRCS4iAlEtvUhUIIFJCi4AUkSYqIQkQSoghodkVUcERRUUEG8igiAwwIRgQFQ8BIREFubNFUfDhj4lhfX37973nvOfc9877zLr3n99QAOBkp0YrKctAAsKlshg+PJzpEStMIn0BCYABFABYAGDZmSkhMS7pM68CX8KBCByACwAtb0SgS+yv/38EJSKiAACgUjZpJD0AIYMHkOIZInEBECcAsXkhEQEQSwBkc6IkInETkG0AUhcqiUhcD8QfAFkpKSMicSDuAmAmJ8shIh4G4g0gWhMvIiKOC2AmI7NIMhInAJG9mUokIsHB6AAstSgRkfBEvADA6KxURMQg+AIwVwIDYEDgBcAAwCOAACAAxBwALLN6IhEhwfACQEDABQBgAFDeuUIkGv4AAIAYf4MEDgCahUkkfD7ADkB7OCMioX8AtAQ/IhIagGAD4FMAgC8AYMvPFiIhAXAFAAcAjAAsK3kiEQH4wAFAgC8AIAMwO0MiIiMAsALALgAb88VEIkIALwDABQAwAnC6VCIhAWADgD0AzP0vFhEBAALwBQA4Ang2IiIhAmADgD0Aet6fKSAQAQAAEP9PFRgQ/wAIAH8AgAMADwD27t1NICAQBgAIAAEAbAD4AAgA/wCAPwDAHYC7A3C3X1YQEDwBCABAAMAfgDsAdwDuBtz9WxdIEBAsAQgAgAEAHwD4DwDwBwDwA8A9gLsDd7+uECAgGgIQAEAAwB8AeADwBwD8AQAegLsD97vVEBAwBgIIAADAegCDAgwKGDEwP0MDAwMDAwMDAwMDFgMDAwMDAwMDAwMDAwO/AAMDDAIMBggEAgYFBgcGBwYHBwcHBwcHDAcHBwcHBwcHBwcHBwMHAwcDBwcIBwcIBwgHBwgHCAcIBwgHCAcIBwMHAgICAwIDAgMCAwIDAgMDBAMGBAQGBwgICAkJDAwMDQwODw8PDwwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDQ0ODw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0N/8AAEQgAyADIAwEiAAIRAQMRAf/EAB8AAAEFAQEBAQEBAAAAAAAAAAABAgMEBQYHCAkKC//EALUQAAIBAwMCBAMFBQQEAAABfQECAwAEEQUSITFBBhNRYQcicRQygZGhCCNCscEVUtHwJDNicoIJChYXGBkaJSYnKCkqNDU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6g4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2drh4uPk5ebn6Onq8fLz9PX29/j5+v/EAB8BAAMBAQEBAQEBAQEAAAAAAAABAgMEBQYHCAkKC//EALURAAIBAgQEAwQHBQQEAAECfAECAwEEBExhBhIiwXEhMUFRYhNhwXGBkqJicoKSo1Njc4OTpDREVGR0hJSlNUVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2drh4uPk5ebn6Onq8fLz9PX29/j5+v/aAAwDAQACEORD00Aof7zIePlA39A20j9d3A9q365vwhvktTLLy00jscd9rsmB6YwG/E+tdJQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFACd6YscceTHwD6dKeeetGOMUAO6Cig0GgBvc0h9TTu5pG4xmgBuOM0gJPAoxgAClHAGRQAwDOR9KUKCcCnD7wpehoAi5A3A0BcjNPA5oA9KAG7R3o+U9KXaQM0m3A6UAIetGOMmg8UYoAOM9KT0xTscHFN6GgBvcUuOetL3NIvGSe9ACY6gUvYUtFABRRRQAUVzvhnWIdXhlmtbU26vPK8mF/ieRySOnOAMgD8M10VABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAYvh6Bba2gtY8ssSKhZuTuAGefr7VuVmeH4DbadbwscukahjnOSAAea06ACiig0AFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFAGTpNtFbpBDCWWOGNQu3j7wOc+ucVsVi+HYZILSBJt29I1Q7jk5AGenXmtagAooooAKKKKACiiigAooooAKKKKACiiigAU0ntR3FFADccmg9MCl6E0CgBnOTShRjBpRzRigBmADuNAUE5p+OMUAehoAj5A3CkC5XNPxwRSCgCPb0o2jIHWnkfLwKXoc0AMY4BFIAMClbgE9aUetADHAGMUoAwG708daBQAnahelO7Uh4xQAnegehpccg0dxQA2iiigDn/CzRta7rZAkDSS7RjoN78n3wK6Cue8KpGbP7RHktM8jsSc5Yuw47fT8PauhoAKKKKACiiigAooooAKKKKACiiigAooooAD0pNvGDS96M0AJjgAUo4GMUdBQaAG9yKRuMZpe5oYcYxQA0YAAFPX7wpBwMUvYmgCHIDYoCg0/uM0m0CgBm0d/xo28ClK7uRS7cDnvQAwjkUY4z3pf4sUuOCD3oAb0GaXsaCOgpccYNACdxS9hSDuKWgBMdBQaXHek9MUAMooooAxfD0K29tBbJyEjVMgYHA9Oa2axdBhe3ggt5c70RFY5zyAP8+9bVABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFACe1HeiloAToKKAO9FADPcGkbjFOHpSMM4xQAzGACOtOXAOTSDgY7UoGWzigCHkDb3oAIGT0qTbyGoAz8tAEW0dTRtwR71IFCjB6UBcYJoAh68CnHGMHtSrwaMYIPftQAzoCacOmBS9G9jRjgjtQAndqXsKOwFLQAmO9J6Yp3bik9MUAMooooAxtDghgtYIYg2xEUAsTk4AGcng+uRxWzWVoEEFvp9vBbbgkaKi7upAAGSeOtfT796ACiiigAooooA//Z');
+            background-size: cover;
+            background-position: center;
             border-radius: 50%;
-            box-shadow: 0 10px 30px rgba(245, 176, 65, 0.4), inset 0 0 20px rgba(255, 255, 255, 0.6);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(255, 255, 255, 0.1);
             cursor: pointer;
             transition: transform 0.05s ease;
             position: relative;
+            touch-action: manipulation;
         }
 
         .coin:active {
-            transform: scale(0.95);
+            transform: scale(0.92);
         }
 
-        /* Анимация всплывающих цифр +1 */
+        /* Энергия */
+        .energy-container {
+            width: 80%;
+            max-width: 300px;
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        .energy-text {
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+            color: #aaa;
+        }
+
+        .energy-bar-bg {
+            width: 100%;
+            height: 12px;
+            background-color: #2a2a3a;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid #444;
+        }
+
+        .energy-bar-fill {
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(90deg, #ffffff, #666666);
+            border-radius: 6px;
+            transition: width 0.1s ease;
+        }
+
         .click-floating {
             position: absolute;
-            color: #ffe066;
-            font-size: 2rem;
+            color: #ffffff;
+            font-size: 2.5rem;
             font-weight: bold;
-            animation: floatUp 0.6s ease-out forwards;
+            animation: floatUp 0.5s ease-out forwards;
             pointer-events: none;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
         }
 
         @keyframes floatUp {
             0% { opacity: 1; transform: translateY(0) scale(1); }
-            100% { opacity: 0; transform: translateY(-100px) scale(1.2); }
+            100% { opacity: 0; transform: translateY(-80px) scale(1.1); }
         }
     </style>
 </head>
@@ -75,36 +104,51 @@
         🪙 <span id="score">0</span>
     </div>
 
-    <div class="coin" id="coinBtn">🚀</div>
+    <!-- Монетка со львом -->
+    <div class="coin" id="coinBtn"></div>
+
+    <div class="energy-container">
+        <div class="energy-text">⚡ <span id="energyText">500</span>/500</div>
+        <div class="energy-bar-bg">
+            <div class="energy-bar-fill" id="energyFill"></div>
+        </div>
+    </div>
 
     <script>
-        // Инициализируем Telegram WebApp
         const tg = window.Telegram.WebApp;
-        tg.expand(); // Раскрываем на весь экран
+        tg.expand();
 
         const scoreEl = document.getElementById('score');
         const coinBtn = document.getElementById('coinBtn');
+        const energyTextEl = document.getElementById('energyText');
+        const energyFillEl = document.getElementById('energyFill');
 
-        // Получаем ID пользователя из Telegram. Если открыто в браузере, ставим 0
         const userId = tg.initDataUnsafe?.user?.id || 0;
-        let score = 0;
+        
+        let score = parseInt(localStorage.getItem('wolf_score')) || 0;
+        let energy = parseInt(localStorage.getItem('wolf_energy')) || 500;
+        const maxEnergy = 500;
 
-        // URL твоего бэкенда (пока локально)
+        scoreEl.textContent = score;
+        updateEnergyUI();
+
         const BACKEND_URL = 'http://127.0.0.1:8000';
 
-        // Загружаем текущий баланс игрока из базы данных при старте
-        async function loadScore() {
-            try {
-                const response = await fetch(`${BACKEND_URL}/get_balance?user_id=${userId}`);
-                const data = await response.json();
-                score = data.balance;
-                scoreEl.textContent = score;
-            } catch (err) {
-                console.error("Ошибка загрузки баланса:", err);
-            }
+        function updateEnergyUI() {
+            energyTextEl.textContent = energy;
+            const percentage = (energy / maxEnergy) * 100;
+            energyFillEl.style.width = `${percentage}%`;
+            localStorage.setItem('wolf_energy', energy);
         }
 
-        // Отправляем клик на сервер
+        // Восстановление энергии (+3 в секунду)
+        setInterval(() => {
+            if (energy < maxEnergy) {
+                energy = Math.min(maxEnergy, energy + 3);
+                updateEnergyUI();
+            }
+        }, 1000);
+
         async function sendClick() {
             try {
                 const response = await fetch(`${BACKEND_URL}/click`, {
@@ -115,37 +159,49 @@
                 const data = await response.json();
                 score = data.balance;
                 scoreEl.textContent = score;
+                localStorage.setItem('wolf_score', score);
             } catch (err) {
-                // Если сервер недоступен, все равно прибавляем визуально для вайба
+                // Если сервер выключен, кликаем автономно на телефоне
                 score++;
                 scoreEl.textContent = score;
+                localStorage.setItem('wolf_score', score);
             }
         }
 
-        // Обработка клика по монетке
-        coinBtn.addEventListener('click', (e) => {
-            sendClick();
-
-            // Создаем красивую всплывающую цифру "+1" в месте клика
-            const clickText = document.createElement('div');
-            clickText.classList.add('click-floating');
-            clickText.textContent = '+1';
+        // Мультитач для телефонов
+        coinBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const touches = e.changedTouches;
             
-            // Позиционируем цифру
-            const rect = coinBtn.getBoundingClientRect();
-            clickText.style.left = `${e.clientX - rect.left}px`;
-            clickText.style.top = `${e.clientY - rect.top}px`;
-            
-            coinBtn.appendChild(clickText);
+            for (let i = 0; i < touches.length; i++) {
+                if (energy >= 1) {
+                    energy--;
+                    updateEnergyUI();
+                    sendClick();
 
-            // Удаляем элемент после завершения анимации
-            setTimeout(() => {
-                clickText.remove();
-            }, 600);
+                    const clickText = document.createElement('div');
+                    clickText.classList.add('click-floating');
+                    clickText.textContent = '+1';
+                    
+                    const rect = coinBtn.getBoundingClientRect();
+                    clickText.style.left = `${touches[i].clientX - rect.left}px`;
+                    clickText.style.top = `${touches[i].clientY - rect.top}px`;
+                    
+                    coinBtn.appendChild(clickText);
+
+                    setTimeout(() => { clickText.remove(); }, 500);
+                }
+            }
         });
 
-        // Запускаем загрузку данных при открытии
-        loadScore();
+        // Клик мышкой для компов
+        coinBtn.addEventListener('click', (e) => {
+            if (e.pointerType !== 'touch' && energy >= 1) {
+                energy--;
+                updateEnergyUI();
+                sendClick();
+            }
+        });
     </script>
 </body>
 </html>
