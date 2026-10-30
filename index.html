@@ -6,115 +6,212 @@
 <title>Wolf Clicker</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
-  :root {
-    --bg: #0e1a22;
-    --panel: #16262f;
-    --moon: #e8eef2;
-    --ice: #7fc4e0;
-    --ember: #f2a33a;
-    --muted: #7d909b;
-  }
-  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
-  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--moon); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; overflow: hidden; touch-action: manipulation; }
-  .app { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: max(20px, env(safe-area-inset-top)) 20px max(24px, env(safe-area-inset-bottom)); }
-  .score { text-align: center; }
-  .score small { color: var(--muted); font-size: 14px; }
-  .score .num { font-size: 52px; font-weight: 800; letter-spacing: 1px; color: var(--ember); }
-  .stage { position: relative; flex: 1; width: 100%; display: flex; align-items: center; justify-content: center; }
-  #tap {
-    width: min(70vw, 300px); aspect-ratio: 1; border-radius: 50%; border: 6px solid var(--ice);
-    background: radial-gradient(circle at 35% 30%, #27414f, #12222b 70%);
-    box-shadow: 0 0 40px rgba(127,196,224,.25), inset 0 0 30px rgba(0,0,0,.5);
-    display: flex; align-items: center; justify-content: center; padding: 0; cursor: pointer;
-    transition: transform .08s ease, box-shadow .08s ease;
-  }
-  #tap:active, #tap.press { transform: scale(.95); box-shadow: 0 0 60px rgba(127,196,224,.45), inset 0 0 30px rgba(0,0,0,.5); }
-  #tap.empty { filter: grayscale(.8) brightness(.7); }
-  #tap { overflow: hidden; }
-  #tap img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; pointer-events: none; }
-  #tap .fallback { font-size: min(34vw, 150px); line-height: 1; pointer-events: none; }
-  .float { position: absolute; font-weight: 800; font-size: 28px; color: var(--ember); pointer-events: none; animation: up .8s ease-out forwards; }
-  @keyframes up { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-90px); } }
-  .energy { width: 100%; max-width: 420px; }
-  .energy .row { display: flex; justify-content: space-between; font-size: 15px; margin-bottom: 8px; }
-  .bar { height: 14px; background: var(--panel); border-radius: 7px; overflow: hidden; }
-  .bar > i { display: block; height: 100%; width: 100%; background: linear-gradient(90deg, var(--ice), #b6e3f4); transition: width .15s linear; }
-  @media (prefers-reduced-motion: reduce) { .float { animation-duration: .01s; } #tap { transition: none; } }
+  :root { --bg:#0e1a22; --panel:#16262f; --moon:#e8eef2; --ice:#7fc4e0; --ember:#f2a33a; --muted:#7d909b; --ok:#5ec27a; }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none; -webkit-user-select:none; }
+  html, body { margin:0; height:100%; background:var(--bg); color:var(--moon); font-family:system-ui,-apple-system,"Segoe UI",sans-serif; overflow:hidden; touch-action:manipulation; }
+  .app { height:100%; display:flex; flex-direction:column; }
+  header { text-align:center; padding:max(14px, env(safe-area-inset-top)) 16px 4px; }
+  header small { color:var(--muted); font-size:13px; }
+  #coins { font-size:44px; font-weight:800; color:var(--ember); line-height:1.1; }
+  main { flex:1; min-height:0; position:relative; }
+  .tab { display:none; height:100%; overflow-y:auto; padding:8px 16px 16px; }
+  .tab.on { display:flex; flex-direction:column; }
+  #t-click { align-items:center; justify-content:space-between; }
+  .stage { position:relative; flex:1; width:100%; display:flex; align-items:center; justify-content:center; }
+  #tap { width:min(62vw,280px); aspect-ratio:1; border-radius:50%; border:6px solid var(--ice); background:#12222b; overflow:hidden; padding:0; cursor:pointer;
+         box-shadow:0 0 40px rgba(127,196,224,.25); display:flex; align-items:center; justify-content:center; transition:transform .08s ease; }
+  #tap:active { transform:scale(.95); }
+  #tap.empty { filter:grayscale(.8) brightness(.7); }
+  #tap img { width:100%; height:100%; object-fit:cover; border-radius:50%; pointer-events:none; }
+  #tap .fb { font-size:min(30vw,130px); pointer-events:none; }
+  .float { position:absolute; font-weight:800; font-size:26px; color:var(--ember); pointer-events:none; animation:up .8s ease-out forwards; }
+  @keyframes up { from { opacity:1; transform:translateY(0); } to { opacity:0; transform:translateY(-90px); } }
+  .energy { width:100%; max-width:420px; padding-top:8px; }
+  .energy .row { display:flex; justify-content:space-between; font-size:14px; margin-bottom:6px; }
+  .bar { height:12px; background:var(--panel); border-radius:6px; overflow:hidden; }
+  .bar > i { display:block; height:100%; width:0; background:linear-gradient(90deg,var(--ice),#b6e3f4); transition:width .15s linear; }
+  h2 { margin:6px 0 10px; font-size:20px; }
+  .note { color:var(--muted); font-size:13px; margin:0 0 10px; }
+  .card { background:var(--panel); border-radius:14px; padding:14px; margin-bottom:10px; }
+  .card .top { display:flex; justify-content:space-between; align-items:center; gap:10px; }
+  .card b { font-size:16px; } .card p { margin:4px 0 0; color:var(--muted); font-size:13px; }
+  button.act { background:var(--ice); color:#08151c; border:0; border-radius:10px; padding:10px 14px; font-weight:700; font-size:14px; cursor:pointer; white-space:nowrap; }
+  button.act:disabled { background:#2b3d47; color:var(--muted); cursor:default; }
+  button.act.ok { background:var(--ok); }
+  .card .bar { margin-top:10px; }
+  .row-top { display:flex; justify-content:space-between; padding:10px 14px; border-bottom:1px solid #22343e; font-size:15px; }
+  .row-top.me { background:rgba(127,196,224,.12); border-radius:8px; }
+  nav { display:flex; background:#0a141a; border-top:1px solid #22343e; padding-bottom:env(safe-area-inset-bottom); }
+  nav button { flex:1; background:none; border:0; color:var(--muted); padding:9px 2px 8px; font-size:12px; cursor:pointer; }
+  nav button span { display:block; font-size:22px; }
+  nav button.on { color:var(--ice); }
+  #toast { position:fixed; left:50%; top:max(70px,env(safe-area-inset-top)); transform:translateX(-50%); background:#2b3d47; padding:10px 16px; border-radius:10px; font-size:14px; opacity:0; transition:opacity .2s; pointer-events:none; max-width:90%; text-align:center; z-index:5; }
+  #toast.show { opacity:1; }
+  #block { position:fixed; inset:0; background:var(--bg); display:none; align-items:center; justify-content:center; text-align:center; padding:30px; z-index:9; }
+  @media (prefers-reduced-motion:reduce) { .float { animation-duration:.01s; } #tap { transition:none; } }
 </style>
 </head>
 <body>
 <div class="app">
-  <div class="score"><small>Монеты</small><div class="num" id="coins">0</div></div>
+  <header><small>Монеты</small><div id="coins">0</div></header>
+  <main>
+    <section class="tab on" id="t-click">
+      <div class="stage" id="stage">
+        <button id="tap" aria-label="Тап">
+          <!-- wolf.png лежит рядом с этим файлом; если его нет, покажется эмодзи -->
+          <img src="wolf.png" alt="" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'fb',textContent:'🐺'}))">
+        </button>
+      </div>
+      <div class="energy">
+        <div class="row"><span>Энергия</span><span id="etext">0 / 0</span></div>
+        <div class="bar"><i id="ebar"></i></div>
+      </div>
+    </section>
 
-  <div class="stage" id="stage">
-    <button id="tap" aria-label="Тап">
-      <!-- Положи свою картинку рядом: wolf.png. Если файла нет — покажется эмодзи -->
-      <img id="emblem" src="wolf.png" alt="" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'fallback',textContent:'🐺'}))">
-    </button>
-  </div>
+    <section class="tab" id="t-up">
+      <h2>Улучшения</h2>
+      <div class="card"><div class="top"><div><b>Сила клика · ур. <span id="tl">0</span></b><p id="td"></p></div><button class="act" id="btap"></button></div></div>
+      <div class="card"><div class="top"><div><b>Запас энергии · ур. <span id="el">0</span></b><p id="ed"></p></div><button class="act" id="been"></button></div></div>
+    </section>
 
-  <div class="energy">
-    <div class="row"><span>Энергия</span><span id="etext">500 / 500</span></div>
-    <div class="bar"><i id="ebar"></i></div>
-  </div>
+    <section class="tab" id="t-tasks">
+      <h2>Задания</h2>
+      <p class="note">Обновление через <b id="timer">--:--:--</b></p>
+      <div id="tasks"></div>
+    </section>
+
+    <section class="tab" id="t-top">
+      <h2>Рейтинг</h2>
+      <p class="note" id="rank">По всем заработанным монетам</p>
+      <div id="toplist"></div>
+    </section>
+  </main>
+  <nav id="nav">
+    <button data-t="click" class="on"><span>🐺</span>Кликер</button>
+    <button data-t="up"><span>⚡</span>Улучшения</button>
+    <button data-t="tasks"><span>📅</span>Задания</button>
+    <button data-t="top"><span>🏆</span>Рейтинг</button>
+  </nav>
 </div>
+<div id="toast"></div>
+<div id="block"><div><div style="font-size:60px">🐺</div><p>Откройте игру через бота в Telegram.</p></div></div>
 
 <script>
+  // Адрес вашего сервера (после запуска wolf_server.py на хостинге)
+  const API_URL = "https://magazinger.pythonanywhere.com/api";
+
   const tg = window.Telegram && window.Telegram.WebApp;
   if (tg) { tg.ready(); tg.expand(); tg.setHeaderColor && tg.setHeaderColor('#0e1a22'); tg.setBackgroundColor && tg.setBackgroundColor('#0e1a22'); }
-
-  // Настройки игры
-  const MAX_ENERGY = 500;   // лимит энергии
-  const TAP_COST = 1;       // сколько энергии тратит клик
-  const TAP_GAIN = 1;       // сколько монет за клик
-  const REGEN_PER_SEC = 1;  // восстановление энергии в секунду
-  const KEY = 'wolf_clicker_v1';
-
-  let state = { coins: 0, energy: MAX_ENERGY, ts: Date.now() };
-  try { Object.assign(state, JSON.parse(localStorage.getItem(KEY)) || {}); } catch (e) {}
-
-  // Энергия восстанавливается и пока приложение закрыто
-  function regen() {
-    const now = Date.now();
-    const gained = ((now - state.ts) / 1000) * REGEN_PER_SEC;
-    state.energy = Math.min(MAX_ENERGY, state.energy + gained);
-    state.ts = now;
-  }
-  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+  if (!tg || !tg.initData) document.getElementById('block').style.display = 'flex';
 
   const $ = id => document.getElementById(id);
-  function render() {
-    const e = Math.floor(state.energy);
-    $('coins').textContent = Math.floor(state.coins).toLocaleString('ru-RU');
-    $('etext').textContent = e + ' / ' + MAX_ENERGY;
-    $('ebar').style.width = (state.energy / MAX_ENERGY * 100) + '%';
-    $('tap').classList.toggle('empty', state.energy < TAP_COST);
+  const fmt = n => Math.floor(n).toLocaleString('ru-RU');
+  let S = null, pending = 0, last = Date.now(), flushTimer = null, chain = Promise.resolve(), myId = null;
+
+  function toast(t) { const e = $('toast'); e.textContent = t; e.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => e.classList.remove('show'), 2200); }
+
+  async function api(action, extra) {
+    try {
+      const r = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify(Object.assign({ action, initData: tg ? tg.initData : '' }, extra || {})) });
+      return await r.json();
+    } catch (e) { return { ok: false, error: 'Нет связи с сервером' }; }
   }
+  const queue = fn => (chain = chain.then(fn, fn));
+
+  function setState(st) {
+    S = st; last = Date.now();
+    S.coins += pending * S.perTap;                 // клики, сделанные пока шёл запрос
+    S.energy = Math.max(0, S.energy - pending);
+    render();
+  }
+  function handle(r) {
+    if (r.state) setState(r.state);
+    if (!r.ok && r.error) toast(r.error);
+    return r;
+  }
+  async function sendTaps() {
+    if (!pending) return;
+    const n = pending; pending = 0;
+    const r = await api('tap', { n });
+    if (!r.ok && !r.state) { pending += n; toast(r.error); return; }
+    handle(r);
+  }
+  const flush = () => queue(sendTaps);
+  const act = (action, extra) => queue(async () => { await sendTaps(); return handle(await api(action, extra)); });
 
   function tap(x, y) {
-    regen();
-    if (state.energy < TAP_COST) { tg && tg.HapticFeedback && tg.HapticFeedback.notificationOccurred('error'); render(); return; }
-    state.energy -= TAP_COST;
-    state.coins += TAP_GAIN;
+    if (!S) return;
+    if (S.energy < 1) { tg && tg.HapticFeedback && tg.HapticFeedback.notificationOccurred('error'); return; }
+    S.energy -= 1; S.coins += S.perTap; pending++;
     tg && tg.HapticFeedback && tg.HapticFeedback.impactOccurred('light');
-    const f = document.createElement('div');
-    f.className = 'float'; f.textContent = '+' + TAP_GAIN;
+    const f = document.createElement('div'); f.className = 'float'; f.textContent = '+' + S.perTap;
     const r = $('stage').getBoundingClientRect();
     f.style.left = (x - r.left - 10) + 'px'; f.style.top = (y - r.top - 20) + 'px';
-    $('stage').appendChild(f);
-    setTimeout(() => f.remove(), 800);
-    render(); save();
+    $('stage').appendChild(f); setTimeout(() => f.remove(), 800);
+    renderMain();
+    if (!flushTimer) flushTimer = setTimeout(() => { flushTimer = null; flush(); }, 700);
   }
-
-  // pointerdown + мультитач: каждый палец считается отдельным кликом
-  $('tap').addEventListener('touchstart', ev => {
-    ev.preventDefault();
-    for (const t of ev.changedTouches) tap(t.clientX, t.clientY);
-  }, { passive: false });
+  $('tap').addEventListener('touchstart', ev => { ev.preventDefault(); for (const t of ev.changedTouches) tap(t.clientX, t.clientY); }, { passive: false });
   $('tap').addEventListener('mousedown', ev => tap(ev.clientX, ev.clientY));
 
-  setInterval(() => { regen(); render(); save(); }, 1000);
-  regen(); render();
+  function renderMain() {
+    $('coins').textContent = fmt(S.coins);
+    $('etext').textContent = Math.floor(S.energy) + ' / ' + S.maxEnergy;
+    $('ebar').style.width = (S.energy / S.maxEnergy * 100) + '%';
+    $('tap').classList.toggle('empty', S.energy < 1);
+  }
+  function render() {
+    renderMain();
+    $('tl').textContent = S.tapLvl + 1; $('el').textContent = S.enLvl + 1;
+    $('td').textContent = 'Сейчас ' + S.perTap + ' за клик, будет ' + (S.perTap + 1);
+    $('ed').textContent = 'Сейчас ' + S.maxEnergy + ', будет ' + (S.maxEnergy + 100);
+    $('btap').textContent = '🪙 ' + fmt(S.tapCost); $('btap').disabled = S.coins < S.tapCost;
+    $('been').textContent = '🪙 ' + fmt(S.enCost); $('been').disabled = S.coins < S.enCost;
+    $('tasks').innerHTML = S.tasks.map(t => {
+      const done = t.progress >= t.goal;
+      const btn = t.claimed ? '<button class="act" disabled>Получено</button>'
+        : '<button class="act ok" data-claim="' + t.id + '"' + (done ? '' : ' disabled') + '>Забрать +' + t.reward + '</button>';
+      return '<div class="card"><div class="top"><div><b>' + t.title + '</b><p>Награда: ' + t.reward + ' монет · ' + fmt(t.progress) + ' / ' + fmt(t.goal) + '</p></div>' + btn + '</div>' +
+             '<div class="bar"><i style="width:' + (t.progress / t.goal * 100) + '%"></i></div></div>';
+    }).join('');
+  }
+
+  $('btap').onclick = () => act('buy', { kind: 'tap' });
+  $('been').onclick = () => act('buy', { kind: 'energy' });
+  $('tasks').onclick = e => { const id = e.target.dataset && e.target.dataset.claim; if (id) act('claim', { task: id }).then(r => r.ok && toast('+500 монет!')); };
+
+  async function loadTop() {
+    const r = await act('top'); if (!r.ok) return;
+    myId = r.me;
+    $('rank').textContent = 'Ваше место: ' + r.rank + ' · по всем заработанным монетам';
+    $('toplist').innerHTML = r.top.map((p, i) =>
+      '<div class="row-top' + (p.name === (tg.initDataUnsafe.user || {}).first_name ? ' me' : '') + '"><span>' +
+      (['🥇', '🥈', '🥉'][i] || (i + 1) + '.') + ' ' + p.name.replace(/[<>&]/g, '') + '</span><b>' + fmt(p.total) + '</b></div>').join('');
+  }
+
+  $('nav').onclick = e => {
+    const b = e.target.closest('button'); if (!b) return;
+    document.querySelectorAll('nav button').forEach(x => x.classList.toggle('on', x === b));
+    document.querySelectorAll('.tab').forEach(x => x.classList.toggle('on', x.id === 't-' + b.dataset.t));
+    if (b.dataset.t === 'top') loadTop();
+    if (b.dataset.t === 'tasks') act('state');
+  };
+
+  // Локальное восстановление энергии и таймер до обновления заданий
+  setInterval(() => {
+    if (!S) return;
+    const now = Date.now(), dt = (now - last) / 1000; last = now;
+    S.energy = Math.min(S.maxEnergy, S.energy + dt * S.regen);
+    S.resetIn = Math.max(0, S.resetIn - dt);
+    if (S.resetIn <= 0 && !S.rf) { S.rf = 1; act('state'); }  // новый день: обновить задания
+    const s = Math.floor(S.resetIn), p = n => String(n).padStart(2, '0');
+    $('timer').textContent = p(Math.floor(s / 3600)) + ':' + p(Math.floor(s % 3600 / 60)) + ':' + p(s % 60);
+    renderMain();
+  }, 1000);
+  document.addEventListener('visibilitychange', () => { if (document.hidden) flush(); else act('state'); });
+
+  if (tg && tg.initData) act('state');
 </script>
 </body>
 </html>
