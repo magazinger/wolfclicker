@@ -65,6 +65,7 @@
       <div class="energy">
         <div class="row"><span>Энергия</span><span id="etext">0 / 0</span></div>
         <div class="bar"><i id="ebar"></i></div>
+        <p class="note" style="text-align:center;margin:8px 0 0">🍀 Каждый клик: 1% шанс на +500 монет</p>
       </div>
     </section>
 
@@ -72,6 +73,7 @@
       <h2>Улучшения</h2>
       <div class="card"><div class="top"><div><b>Сила клика · ур. <span id="tl">0</span></b><p id="td"></p></div><button class="act" id="btap"></button></div></div>
       <div class="card"><div class="top"><div><b>Запас энергии · ур. <span id="el">0</span></b><p id="ed"></p></div><button class="act" id="been"></button></div></div>
+      <div class="card"><div class="top"><div><b>Скорость энергии · ур. <span id="rl">0</span></b><p id="rd"></p></div><button class="act" id="bregen"></button></div></div>
     </section>
 
     <section class="tab" id="t-tasks">
@@ -128,6 +130,7 @@
   function handle(r) {
     if (r.state) setState(r.state);
     if (!r.ok && r.error) toast(r.error);
+    if (r.lucky) { toast('🍀 Редкий клик! +' + fmt(r.lucky * r.luckyBonus)); tg && tg.HapticFeedback && tg.HapticFeedback.notificationOccurred('success'); }
     return r;
   }
   async function sendTaps() {
@@ -166,6 +169,9 @@
     $('tl').textContent = S.tapLvl + 1; $('el').textContent = S.enLvl + 1;
     $('td').textContent = 'Сейчас ' + S.perTap + ' за клик, будет ' + (S.perTap + 1);
     $('ed').textContent = 'Сейчас ' + S.maxEnergy + ', будет ' + (S.maxEnergy + 100);
+    $('rl').textContent = S.regLvl + 1;
+    $('rd').textContent = 'Сейчас ' + S.regen + ' в секунду, будет ' + (S.regen + 1);
+    $('bregen').textContent = '🪙 ' + fmt(S.regCost); $('bregen').disabled = S.coins < S.regCost;
     $('btap').textContent = '🪙 ' + fmt(S.tapCost); $('btap').disabled = S.coins < S.tapCost;
     $('been').textContent = '🪙 ' + fmt(S.enCost); $('been').disabled = S.coins < S.enCost;
     $('tasks').innerHTML = S.tasks.map(t => {
@@ -179,6 +185,7 @@
 
   $('btap').onclick = () => act('buy', { kind: 'tap' });
   $('been').onclick = () => act('buy', { kind: 'energy' });
+  $('bregen').onclick = () => act('buy', { kind: 'regen' });
   $('tasks').onclick = e => { const id = e.target.dataset && e.target.dataset.claim; if (id) act('claim', { task: id }).then(r => r.ok && toast('+500 монет!')); };
 
   async function loadTop() {
