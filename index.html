@@ -1,189 +1,120 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Wolf Clicker</title>
-    <script src="https://telegram.org"></script>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1e1e2f, #111119);
-            color: #ffffff;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            overflow: hidden;
-            user-select: none;
-            -webkit-user-select: none;
-        }
-
-        .score-container {
-            font-size: 3rem;
-            font-weight: bold;
-            margin-bottom: 25px;
-            text-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        /* Кнопка-монетка со львом */
-        .coin {
-            width: 230px;
-            height: 230px;
-            background-image: url('https://postimg.cc');
-            background-size: cover;
-            background-position: center;
-            border-radius: 50%;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
-            cursor: pointer;
-            transition: transform 0.05s ease;
-            position: relative;
-            touch-action: manipulation;
-        }
-
-        .coin:active {
-            transform: scale(0.92);
-        }
-
-        /* Энергия */
-        .energy-container {
-            width: 80%;
-            max-width: 300px;
-            margin-top: 40px;
-            text-align: center;
-        }
-
-        .energy-text {
-            font-size: 1.2rem;
-            margin-bottom: 8px;
-            color: #aaa;
-        }
-
-        .energy-bar-bg {
-            width: 100%;
-            height: 12px;
-            background-color: #2a2a3a;
-            border-radius: 6px;
-            overflow: hidden;
-            border: 1px solid #444;
-        }
-
-        .energy-bar-fill {
-            height: 100%;
-            width: 100%;
-            background: linear-gradient(90deg, #ffffff, #666666);
-            border-radius: 6px;
-            transition: width 0.1s ease;
-        }
-
-        .click-floating {
-            position: absolute;
-            color: #ffffff;
-            font-size: 2.5rem;
-            font-weight: bold;
-            animation: floatUp 0.5s ease-out forwards;
-            pointer-events: none;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-            z-index: 10;
-        }
-
-        @keyframes floatUp {
-            0% { opacity: 1; transform: translateY(0) scale(1); }
-            100% { opacity: 0; transform: translateY(-80px) scale(1.1); }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Wolf Clicker</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  :root {
+    --bg: #0e1a22;
+    --panel: #16262f;
+    --moon: #e8eef2;
+    --ice: #7fc4e0;
+    --ember: #f2a33a;
+    --muted: #7d909b;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--moon); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; overflow: hidden; touch-action: manipulation; }
+  .app { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: max(20px, env(safe-area-inset-top)) 20px max(24px, env(safe-area-inset-bottom)); }
+  .score { text-align: center; }
+  .score small { color: var(--muted); font-size: 14px; }
+  .score .num { font-size: 52px; font-weight: 800; letter-spacing: 1px; color: var(--ember); }
+  .stage { position: relative; flex: 1; width: 100%; display: flex; align-items: center; justify-content: center; }
+  #tap {
+    width: min(70vw, 300px); aspect-ratio: 1; border-radius: 50%; border: 6px solid var(--ice);
+    background: radial-gradient(circle at 35% 30%, #27414f, #12222b 70%);
+    box-shadow: 0 0 40px rgba(127,196,224,.25), inset 0 0 30px rgba(0,0,0,.5);
+    display: flex; align-items: center; justify-content: center; padding: 0; cursor: pointer;
+    transition: transform .08s ease, box-shadow .08s ease;
+  }
+  #tap:active, #tap.press { transform: scale(.95); box-shadow: 0 0 60px rgba(127,196,224,.45), inset 0 0 30px rgba(0,0,0,.5); }
+  #tap.empty { filter: grayscale(.8) brightness(.7); }
+  #tap { overflow: hidden; }
+  #tap img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; pointer-events: none; }
+  #tap .fallback { font-size: min(34vw, 150px); line-height: 1; pointer-events: none; }
+  .float { position: absolute; font-weight: 800; font-size: 28px; color: var(--ember); pointer-events: none; animation: up .8s ease-out forwards; }
+  @keyframes up { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-90px); } }
+  .energy { width: 100%; max-width: 420px; }
+  .energy .row { display: flex; justify-content: space-between; font-size: 15px; margin-bottom: 8px; }
+  .bar { height: 14px; background: var(--panel); border-radius: 7px; overflow: hidden; }
+  .bar > i { display: block; height: 100%; width: 100%; background: linear-gradient(90deg, var(--ice), #b6e3f4); transition: width .15s linear; }
+  @media (prefers-reduced-motion: reduce) { .float { animation-duration: .01s; } #tap { transition: none; } }
+</style>
 </head>
 <body>
+<div class="app">
+  <div class="score"><small>Монеты</small><div class="num" id="coins">0</div></div>
 
-    <div class="score-container">
-        🪙 <span id="score">0</span>
-    </div>
+  <div class="stage" id="stage">
+    <button id="tap" aria-label="Тап">
+      <!-- Положи свою картинку рядом: wolf.png. Если файла нет — покажется эмодзи -->
+      <img id="emblem" src="wolf.png" alt="" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'fallback',textContent:'🐺'}))">
+    </button>
+  </div>
 
-    <div class="coin" id="coinBtn"></div>
+  <div class="energy">
+    <div class="row"><span>Энергия</span><span id="etext">500 / 500</span></div>
+    <div class="bar"><i id="ebar"></i></div>
+  </div>
+</div>
 
-    <div class="energy-container">
-        <div class="energy-text">⚡ <span id="energyText">500</span>/500</div>
-        <div class="energy-bar-bg">
-            <div class="energy-bar-fill" id="energyFill"></div>
-        </div>
-    </div>
+<script>
+  const tg = window.Telegram && window.Telegram.WebApp;
+  if (tg) { tg.ready(); tg.expand(); tg.setHeaderColor && tg.setHeaderColor('#0e1a22'); tg.setBackgroundColor && tg.setBackgroundColor('#0e1a22'); }
 
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
+  // Настройки игры
+  const MAX_ENERGY = 500;   // лимит энергии
+  const TAP_COST = 1;       // сколько энергии тратит клик
+  const TAP_GAIN = 1;       // сколько монет за клик
+  const REGEN_PER_SEC = 1;  // восстановление энергии в секунду
+  const KEY = 'wolf_clicker_v1';
 
-        const scoreEl = document.getElementById('score');
-        const coinBtn = document.getElementById('coinBtn');
-        const energyTextEl = document.getElementById('energyText');
-        const energyFillEl = document.getElementById('energyFill');
+  let state = { coins: 0, energy: MAX_ENERGY, ts: Date.now() };
+  try { Object.assign(state, JSON.parse(localStorage.getItem(KEY)) || {}); } catch (e) {}
 
-        let score = parseInt(localStorage.getItem('wolf_score')) || 0;
-        let energy = parseInt(localStorage.getItem('wolf_energy')) || 500;
-        const maxEnergy = 500;
+  // Энергия восстанавливается и пока приложение закрыто
+  function regen() {
+    const now = Date.now();
+    const gained = ((now - state.ts) / 1000) * REGEN_PER_SEC;
+    state.energy = Math.min(MAX_ENERGY, state.energy + gained);
+    state.ts = now;
+  }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
 
-        scoreEl.textContent = score;
-        updateEnergyUI();
+  const $ = id => document.getElementById(id);
+  function render() {
+    const e = Math.floor(state.energy);
+    $('coins').textContent = Math.floor(state.coins).toLocaleString('ru-RU');
+    $('etext').textContent = e + ' / ' + MAX_ENERGY;
+    $('ebar').style.width = (state.energy / MAX_ENERGY * 100) + '%';
+    $('tap').classList.toggle('empty', state.energy < TAP_COST);
+  }
 
-        function updateEnergyUI() {
-            energyTextEl.textContent = energy;
-            const percentage = (energy / maxEnergy) * 100;
-            energyFillEl.style.width = `${percentage}%`;
-            localStorage.setItem('wolf_energy', energy);
-        }
+  function tap(x, y) {
+    regen();
+    if (state.energy < TAP_COST) { tg && tg.HapticFeedback && tg.HapticFeedback.notificationOccurred('error'); render(); return; }
+    state.energy -= TAP_COST;
+    state.coins += TAP_GAIN;
+    tg && tg.HapticFeedback && tg.HapticFeedback.impactOccurred('light');
+    const f = document.createElement('div');
+    f.className = 'float'; f.textContent = '+' + TAP_GAIN;
+    const r = $('stage').getBoundingClientRect();
+    f.style.left = (x - r.left - 10) + 'px'; f.style.top = (y - r.top - 20) + 'px';
+    $('stage').appendChild(f);
+    setTimeout(() => f.remove(), 800);
+    render(); save();
+  }
 
-        // Восстановление энергии (+3 в секунду)
-        setInterval(() => {
-            if (energy < maxEnergy) {
-                energy = Math.min(maxEnergy, energy + 3);
-                updateEnergyUI();
-            }
-        }, 1000);
+  // pointerdown + мультитач: каждый палец считается отдельным кликом
+  $('tap').addEventListener('touchstart', ev => {
+    ev.preventDefault();
+    for (const t of ev.changedTouches) tap(t.clientX, t.clientY);
+  }, { passive: false });
+  $('tap').addEventListener('mousedown', ev => tap(ev.clientX, ev.clientY));
 
-        function handleTap(clientX, clientY) {
-            if (energy >= 1) {
-                energy--;
-                score++;
-                
-                scoreEl.textContent = score;
-                updateEnergyUI();
-                
-                localStorage.setItem('wolf_score', score);
-
-                // Анимация +1
-                const clickText = document.createElement('div');
-                clickText.classList.add('click-floating');
-                clickText.textContent = '+1';
-                
-                const rect = coinBtn.getBoundingClientRect();
-                clickText.style.left = `${clientX - rect.left}px`;
-                clickText.style.top = `${clientY - rect.top}px`;
-                
-                coinBtn.appendChild(clickText);
-                setTimeout(() => { clickText.remove(); }, 500);
-            }
-        }
-
-        // Мультитач для смартфонов
-        coinBtn.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            const touches = e.changedTouches;
-            for (let i = 0; i < touches.length; i++) {
-                handleTap(touches[i].clientX, touches[i].clientY);
-            }
-        });
-
-        // Клик мышкой для ПК
-        coinBtn.addEventListener('click', (e) => {
-            if (e.pointerType !== 'touch') {
-                handleTap(e.clientX, e.clientY);
-            }
-        });
-    </script>
+  setInterval(() => { regen(); render(); save(); }, 1000);
+  regen(); render();
+</script>
 </body>
 </html>
