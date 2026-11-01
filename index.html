@@ -57,6 +57,7 @@
   .day { background:rgba(127,127,127,.18); border-radius:10px; padding:8px 2px; text-align:center; font-size:12px; color:var(--muted); }
   .day b { display:block; font-size:15px; color:var(--moon); } .day.done { background:var(--ok); color:#06210f; } .day.done b { color:#06210f; }
   .day.today { outline:2px solid var(--ice); }
+  input { width:100%; padding:11px 12px; border-radius:10px; border:1px solid var(--line); background:rgba(127,127,127,.15); color:var(--moon); font-size:15px; margin-bottom:8px; user-select:text; -webkit-user-select:text; }
   .row-top { display:flex; justify-content:space-between; padding:10px 14px; border-bottom:1px solid var(--line); font-size:15px; }
   .row-top.me { background:rgba(127,127,127,.2); border-radius:8px; }
   nav { display:flex; background:var(--nav); border-top:1px solid var(--line); padding-bottom:env(safe-area-inset-bottom); }
@@ -101,6 +102,17 @@
       <div id="tasks"></div>
     </section>
 
+    <section class="tab" id="t-admin">
+      <h2>Админ-панель</h2>
+      <div class="card">
+        <p id="asel" style="margin:0 0 10px">Выберите игрока из списка</p>
+        <input id="aamount" type="number" inputmode="numeric" placeholder="Сумма (с минусом, чтобы забрать)">
+        <div class="btns" style="flex-direction:row"><button class="act ok" id="agive">Выдать</button><button class="act" id="aself">Выбрать себя</button></div>
+      </div>
+      <input id="asearch" placeholder="Поиск по имени или ID">
+      <div id="alist"></div>
+    </section>
+
     <section class="tab" id="t-top">
       <h2>Рейтинг</h2>
       <p class="note" id="rank">По всем заработанным монетам</p>
@@ -112,6 +124,7 @@
     <button data-t="shop"><span>🛍️</span>Магазин</button>
     <button data-t="tasks"><span>📅</span>Задания</button>
     <button data-t="top"><span>🏆</span>Рейтинг</button>
+    <button data-t="admin" id="navadmin" hidden><span>🛠️</span>Админ</button>
   </nav>
 </div>
 <div id="toast"></div>
@@ -195,7 +208,7 @@
     if (tg) { tg.setHeaderColor && tg.setHeaderColor(c); tg.setBackgroundColor && tg.setBackgroundColor(c); }
   }
   function render() {
-    applySkin(); renderMain();
+    applySkin(); renderMain(); $('navadmin').hidden = !S.admin;
     $('tl').textContent = S.tapLvl + 1; $('el').textContent = S.enLvl + 1; $('rl').textContent = S.regLvl + 1;
     $('td').textContent = 'Сейчас ' + S.perTap + ' за клик, будет ' + (S.perTap + 1);
     $('ed').textContent = 'Сейчас ' + S.maxEnergy + ', будет ' + (S.maxEnergy + 100);
@@ -244,6 +257,29 @@
     else if (d.claim) act('claim', { task: d.claim }).then(r => r.ok && toast('Награда получена!'));
   };
 
+  // ---- Админ-панель (доступна только если сервер подтвердил ваш ID) ----
+  let adminUsers = [], adminSel = null;
+  const esc = t => String(t).replace(/[<>&"]/g, '');
+  function renderAdmin() {
+    const q = ($('asearch').value || '').toLowerCase();
+    const list = adminUsers.filter(u => !q || String(u.id).includes(q) || u.name.toLowerCase().includes(q)).slice(0, 60);
+    $('alist').innerHTML = list.map(u => '<div class="row-top' + (u.id === adminSel ? ' me' : '') + '" data-uid="' + u.id + '"><span>' +
+      esc(u.name) + ' · ' + u.id + '</span><b>' + fmt(u.coins) + '</b></div>').join('') || '<p class="note">Никого не найдено</p>';
+    const sel = adminUsers.find(u => u.id === adminSel);
+    $('asel').textContent = sel ? 'Выбран: ' + sel.name + ' (' + sel.id + ')' : 'Выберите игрока из списка';
+  }
+  async function loadAdmin() { const r = await act('admin_users'); if (r.ok) { adminUsers = r.users; renderAdmin(); } }
+  $('alist').onclick = e => { const row = e.target.closest('[data-uid]'); if (row) { adminSel = Number(row.dataset.uid); renderAdmin(); } };
+  $('asearch').oninput = renderAdmin;
+  $('aself').onclick = () => { adminSel = S.me; renderAdmin(); };
+  $('agive').onclick = async () => {
+    const amount = parseInt($('aamount').value, 10);
+    if (!adminSel) return toast('Выберите игрока');
+    if (!amount) return toast('Введите сумму');
+    const r = await act('admin_give', { target: adminSel, amount });
+    if (r.ok) { toast('Готово'); $('aamount').value = ''; loadAdmin(); }
+  };
+
   async function loadTop() {
     const r = await act('top'); if (!r.ok) return;
     $('rank').textContent = 'Ваше место: ' + r.rank + ' · по всем заработанным монетам';
@@ -258,6 +294,7 @@
     document.querySelectorAll('nav button').forEach(x => x.classList.toggle('on', x === b));
     document.querySelectorAll('.tab').forEach(x => x.classList.toggle('on', x.id === 't-' + b.dataset.t));
     if (b.dataset.t === 'top') loadTop();
+    if (b.dataset.t === 'admin') loadAdmin();
     if (b.dataset.t === 'tasks' || b.dataset.t === 'shop') act('state');
   };
 
