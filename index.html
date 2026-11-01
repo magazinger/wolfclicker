@@ -53,11 +53,15 @@
   .card .bar { margin-top:10px; }
   .sk { display:flex; align-items:center; gap:12px; }
   .sk img { width:54px; height:54px; object-fit:contain; }
+  .sk img.cimg { width:64px; height:64px; }
   .days { display:grid; grid-template-columns:repeat(5,1fr); gap:6px; margin:12px 0; }
   .day { background:rgba(127,127,127,.18); border-radius:10px; padding:8px 2px; text-align:center; font-size:12px; color:var(--muted); }
   .day b { display:block; font-size:15px; color:var(--moon); } .day.done { background:var(--ok); color:#06210f; } .day.done b { color:#06210f; }
   .day.today { outline:2px solid var(--ice); }
   input { width:100%; padding:11px 12px; border-radius:10px; border:1px solid var(--line); background:rgba(127,127,127,.15); color:var(--moon); font-size:15px; margin-bottom:8px; user-select:text; -webkit-user-select:text; }
+  .seg { display:flex; gap:6px; margin:0 0 12px; }
+  .seg button { flex:1; padding:9px 4px; border:0; border-radius:10px; background:var(--panel); color:var(--muted); font-weight:600; font-size:13px; cursor:pointer; }
+  .seg button.on { background:var(--ice); color:var(--btntext); }
   .row-top { display:flex; justify-content:space-between; padding:10px 14px; border-bottom:1px solid var(--line); font-size:15px; }
   .row-top.me { background:rgba(127,127,127,.2); border-radius:8px; }
   nav { display:flex; background:var(--nav); border-top:1px solid var(--line); padding-bottom:env(safe-area-inset-bottom); }
@@ -72,7 +76,7 @@
 </head>
 <body>
 <div class="app">
-  <header><small>Монеты</small><div id="coins">0</div></header>
+  <header><small>Монеты</small><div id="coins">0</div><small id="rate"></small></header>
   <main>
     <section class="tab on" id="t-click">
       <div class="stage" id="stage">
@@ -87,12 +91,14 @@
 
     <section class="tab" id="t-shop">
       <h2>Магазин</h2>
-      <h3>Улучшения</h3>
+      <div class="seg" id="seg"><button class="on" data-seg="up">Улучшения</button><button data-seg="cards">Карточки</button><button data-seg="skins">Скины</button></div>
+      <div id="sg-up">
       <div class="card"><div class="top"><div><b>Сила клика · ур. <span id="tl">0</span></b><p id="td"></p></div><button class="act" id="btap"></button></div></div>
       <div class="card"><div class="top"><div><b>Запас энергии · ур. <span id="el">0</span></b><p id="ed"></p></div><button class="act" id="been"></button></div></div>
       <div class="card"><div class="top"><div><b>Скорость энергии · ур. <span id="rl">0</span></b><p id="rd"></p></div><button class="act" id="bregen"></button></div></div>
-      <h3>Скины</h3>
-      <div id="skins"></div>
+      </div>
+      <div id="sg-cards" hidden><p class="note" id="cardnote"></p><div id="cards"></div></div>
+      <div id="sg-skins" hidden><div id="skins"></div></div>
     </section>
 
     <section class="tab" id="t-tasks">
@@ -165,6 +171,7 @@
   function handle(r) {
     if (r.state) setState(r.state);
     if (!r.ok && r.error) toast(r.error);
+    if (r.state && r.state.away) toast('Пока вас не было: +' + fmt(r.state.away) + ' монет');
     if (r.lucky) { toast('🍀 Редкий клик! +' + fmt(r.lucky * r.luckyBonus)); tg && tg.HapticFeedback && tg.HapticFeedback.notificationOccurred('success'); }
     return r;
   }
@@ -209,6 +216,16 @@
   }
   function render() {
     applySkin(); renderMain(); $('navadmin').hidden = !S.admin;
+    $('rate').textContent = S.rate ? '🪙 +' + fmt(S.rate) + ' в час' : '';
+    $('cardnote').textContent = 'Карточки дают монеты, даже когда игра закрыта: первые ' + S.offline.hours + ' ч отсутствия полностью, дальше в ' + S.offline.slow + ' раз медленнее. Каждую карточку можно купить до ' + S.cards[0].max + ' раз.';
+    $('cards').innerHTML = S.cards.map(c => {
+      const full = c.count >= c.max;
+      const btn = full ? '<button class="act" disabled>Максимум</button>'
+        : '<button class="act" data-card="' + c.i + '"' + (S.coins < c.price ? ' disabled' : '') + '>🪙 ' + fmt(c.price) + '</button>';
+      return '<div class="card"><div class="top"><div class="sk"><img class="cimg" src="card-' + String(c.i + 1).padStart(2, '0') + '.png" alt=""><div><b>' + c.name + '</b>' +
+        '<p>+' + fmt(c.income) + ' в час за штуку · окупается за ' + c.hours + ' ч</p>' +
+        '<p>Куплено: ' + c.count + ' / ' + c.max + (c.count ? ' · даёт +' + fmt(c.income * c.count) + ' в час' : '') + '</p></div></div>' + btn + '</div></div>';
+    }).join('');
     $('tl').textContent = S.tapLvl + 1; $('el').textContent = S.enLvl + 1; $('rl').textContent = S.regLvl + 1;
     $('td').textContent = 'Сейчас ' + S.perTap + ' за клик, будет ' + (S.perTap + 1);
     $('ed').textContent = 'Сейчас ' + S.maxEnergy + ', будет ' + (S.maxEnergy + 100);
@@ -249,6 +266,12 @@
   $('btap').onclick = () => act('buy', { kind: 'tap' });
   $('been').onclick = () => act('buy', { kind: 'energy' });
   $('bregen').onclick = () => act('buy', { kind: 'regen' });
+  $('cards').onclick = e => { const i = e.target.dataset && e.target.dataset.card; if (i !== undefined) act('card', { i: Number(i) }); };
+  $('seg').onclick = e => {
+    const k = e.target.dataset && e.target.dataset.seg; if (!k) return;
+    document.querySelectorAll('#seg button').forEach(b => b.classList.toggle('on', b === e.target));
+    ['up', 'cards', 'skins'].forEach(n => $('sg-' + n).hidden = n !== k);
+  };
   $('skins').onclick = e => { const id = e.target.dataset && e.target.dataset.skin; if (id) act('skin', { id }); };
   $('daily').onclick = e => { if (e.target.dataset && e.target.dataset.login) act('login').then(r => r.ok && toast('Бонус получен!')); };
   $('tasks').onclick = e => {
@@ -303,6 +326,7 @@
     if (!S) return;
     const now = Date.now(), dt = (now - last) / 1000; last = now;
     S.energy = Math.min(S.maxEnergy, S.energy + dt * S.regen);
+    S.coins += (S.rate || 0) * dt / 3600;
     S.resetIn = Math.max(0, S.resetIn - dt);
     if (S.resetIn <= 0 && !S.rf) { S.rf = 1; act('state'); }  // новый день: обновить задания
     const s = Math.floor(S.resetIn), p = n => String(n).padStart(2, '0');
