@@ -14,6 +14,8 @@
   html[data-skin="valentine"] { --bgfill:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='170' height='170' fill='none' stroke='white' stroke-opacity='.28' stroke-width='2'%3E%3Cpath d='M30 56C12 42 14 22 27 22c5 0 3 7 3 7s-2-7 3-7c13 0 15 20-3 34z'/%3E%3Ccircle cx='118' cy='42' r='11'/%3E%3Cpath d='M104 118l9 18 9-18z'/%3E%3Ccircle cx='42' cy='128' r='6'/%3E%3C/svg%3E"),linear-gradient(160deg,#f0668a,#d63a68);
           --panel:rgba(90,0,30,.35); --moon:#fff; --ice:#ffe3ec; --ember:#ffd24a; --muted:#ffd0de; --nav:rgba(110,10,40,.8); --navtxt:#ffd0de; --line:rgba(255,255,255,.18);
           --btntext:#7a0f33; --dis:rgba(80,0,25,.4); --epanel:rgba(80,0,25,.45); --bar:linear-gradient(90deg,#9fd3ee,#d5eefb); }
+  html[data-skin="muffin"] { --bgfill:radial-gradient(circle at 50% 18%,#33238a,#170f4d 55%,#0a0724); --panel:rgba(124,92,255,.2); --moon:#f1eeff; --ice:#a78bfa; --ember:#ffd45c; --muted:#a59ee0;
+          --nav:#0c0830; --navtxt:#a59ee0; --line:rgba(140,120,255,.28); --btntext:#140c42; --dis:rgba(124,92,255,.28); --bar:linear-gradient(90deg,#7c5cff,#e06bff); }
   html[data-skin="white_wolf"] { --bgfill:linear-gradient(180deg,#464646,#2f2f2f); --panel:#4a4a4a; --moon:#eceff1; --ice:#cfd4d9; --ember:#e0a93f; --muted:#9aa1a6;
           --nav:#4b4b4b; --navtxt:#9aa1a6; --line:#5a5a5a; --btntext:#1d1f20; --dis:#5a5a5a; --bar:linear-gradient(90deg,#9aa1a6,#e3e7ea); }
   * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none; -webkit-user-select:none; }
@@ -31,8 +33,9 @@
   #tap { width:min(62vw,280px); aspect-ratio:1; border-radius:50%; border:6px solid var(--ice); background:var(--tapbg); overflow:hidden; padding:0; cursor:pointer;
          box-shadow:0 0 40px rgba(127,196,224,.25); display:flex; align-items:center; justify-content:center; transition:transform .08s ease; }
   #tap img { width:100%; height:100%; object-fit:cover; border-radius:50%; pointer-events:none; }
-  html:not([data-skin="default"])[data-skin] #tap { border:0; background:none; box-shadow:none; border-radius:0; overflow:visible; aspect-ratio:auto; width:min(76vw,330px); }
-  html:not([data-skin="default"])[data-skin] #tap img { height:auto; object-fit:contain; border-radius:0; filter:drop-shadow(0 12px 16px rgba(0,0,0,.35)); }
+  html[data-skin="golden"] #tap, html[data-skin="valentine"] #tap, html[data-skin="white_wolf"] #tap { border:0; background:none; box-shadow:none; border-radius:0; overflow:visible; aspect-ratio:auto; width:min(76vw,330px); }
+  html[data-skin="muffin"] #tap { border:0; background:none; box-shadow:0 0 50px rgba(124,92,255,.55); }
+  html[data-skin="golden"] #tap img, html[data-skin="valentine"] #tap img, html[data-skin="white_wolf"] #tap img { height:auto; object-fit:contain; border-radius:0; filter:drop-shadow(0 12px 16px rgba(0,0,0,.35)); }
   #tap:active { transform:scale(.95); }
   #tap.empty { filter:grayscale(.8) brightness(.7); }
   .float { position:absolute; font-weight:800; font-size:26px; color:var(--ember); pointer-events:none; animation:up .8s ease-out forwards; }
@@ -106,10 +109,22 @@
       <div id="daily"></div>
       <p class="note">Ежедневные задания обновятся через <b id="timer">--:--:--</b></p>
       <div id="tasks"></div>
+      <h3>Промокод</h3>
+      <div class="card"><input id="promoin" placeholder="Введите промокод" autocapitalize="characters" autocomplete="off"><button class="act ok" id="promobtn">Активировать</button></div>
+      <h3>Друзья</h3>
+      <div id="refcard"></div>
     </section>
 
     <section class="tab" id="t-admin">
       <h2>Админ-панель</h2>
+      <div class="card">
+        <b>Промокоды</b>
+        <input id="pcode" placeholder="Код (пусто = случайный)" autocomplete="off" style="margin-top:10px">
+        <input id="pcoins" type="number" inputmode="numeric" placeholder="Монет за промокод">
+        <input id="puses" type="number" inputmode="numeric" placeholder="Сколько раз можно активировать">
+        <button class="act ok" id="pcreate">Создать промокод</button>
+        <div id="plist" style="margin-top:12px"></div>
+      </div>
       <div class="card">
         <p id="asel" style="margin:0 0 10px">Выберите игрока из списка</p>
         <input id="aamount" type="number" inputmode="numeric" placeholder="Сумма (с минусом, чтобы забрать)">
@@ -140,8 +155,8 @@
   // Адрес вашего сервера (wolf_server.py на хостинге)
   const API_URL = "https://magazinger.pythonanywhere.com/api";
   const CHANNEL_LINK = "https://t.me/wolfclik";
-  const SKIN_IMG = { default: 'wolf.png', golden: 'skin-golden.png', valentine: 'skin-valentine.png', white_wolf: 'skin-whitewolf.png' };
-  const SKIN_HDR = { default: '#0e1a22', golden: '#dcaa37', valentine: '#e24a73', white_wolf: '#3c3c3c' };
+  const SKIN_IMG = { default: 'wolf.png', golden: 'skin-golden.png', valentine: 'skin-valentine.png', white_wolf: 'skin-whitewolf.png', muffin: 'skin-muffin.png' };
+  const SKIN_HDR = { default: '#0e1a22', golden: '#dcaa37', valentine: '#e24a73', white_wolf: '#3c3c3c', muffin: '#170f4d' };
 
   const tg = window.Telegram && window.Telegram.WebApp;
   if (tg) { tg.ready(); tg.expand(); }
@@ -216,6 +231,9 @@
   }
   function render() {
     applySkin(); renderMain(); $('navadmin').hidden = !S.admin;
+    $('refcard').innerHTML = '<div class="card"><b>Пригласи друга</b><p>За каждого друга, который впервые зайдёт в игру по вашей ссылке, вы получите ' + fmt(S.refReward) +
+      ' монет. Приглашено друзей: ' + S.refs + '</p>' + (S.refLink ? '<div class="btns" style="flex-direction:row;margin-top:10px"><button class="act ok" data-share="1">Поделиться</button><button class="act" data-copy="1">Скопировать ссылку</button></div>'
+        : '<p>Реферальная ссылка пока не настроена.</p>') + '</div>';
     $('rate').textContent = S.rate ? '🪙 +' + fmt(S.rate) + ' в час' : '';
     $('cardnote').textContent = 'Карточки дают монеты, даже когда игра закрыта: первые ' + S.offline.hours + ' ч отсутствия полностью, дальше в ' + S.offline.slow + ' раз медленнее. Каждую карточку можно купить до ' + S.cards[0].max + ' раз.';
     $('cards').innerHTML = S.cards.map(c => {
@@ -255,7 +273,7 @@
       const done = t.progress >= t.goal;
       let btn;
       if (t.claimed) btn = '<button class="act" disabled>Получено</button>';
-      else if (t.id === 'sub') btn = '<div class="btns"><button class="act" data-open="1">Открыть канал</button><button class="act ok" data-claim="sub">Проверить +' + fmt(t.reward) + '</button></div>';
+      else if (t.once) btn = '<div class="btns"><button class="act" data-open="1" data-link="' + t.link + '">Открыть канал</button><button class="act ok" data-claim="' + t.id + '">Проверить +' + fmt(t.reward) + '</button></div>';
       else btn = '<button class="act ok" data-claim="' + t.id + '"' + (done ? '' : ' disabled') + '>Забрать +' + fmt(t.reward) + '</button>';
       const sub = t.once ? 'Разовое задание · награда ' + fmt(t.reward) + ' монет' : 'Награда: ' + fmt(t.reward) + ' монет · ' + fmt(t.progress) + ' / ' + fmt(t.goal);
       return '<div class="card"><div class="top"><div><b>' + t.title + '</b><p>' + sub + '</p></div>' + btn + '</div>' +
@@ -272,11 +290,25 @@
     document.querySelectorAll('#seg button').forEach(b => b.classList.toggle('on', b === e.target));
     ['up', 'cards', 'skins'].forEach(n => $('sg-' + n).hidden = n !== k);
   };
+  $('promobtn').onclick = () => {
+    const code = $('promoin').value.trim(); if (!code) return toast('Введите промокод');
+    act('promo', { code }).then(r => { if (r.ok) { toast('Промокод активирован: +' + fmt(r.promo) + ' монет'); $('promoin').value = ''; } });
+  };
+  $('refcard').onclick = e => {
+    const d = e.target.dataset || {};
+    if (d.share) { const u = 'https://t.me/share/url?url=' + encodeURIComponent(S.refLink) + '&text=' + encodeURIComponent('Играй в Wolf Clicker и собирай монеты! 🐺');
+      tg && tg.openTelegramLink ? tg.openTelegramLink(u) : window.open(u, '_blank'); }
+    else if (d.copy) {
+      const done = () => toast('Ссылка скопирована');
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(S.refLink).then(done, () => toast(S.refLink));
+      else { const t = document.createElement('textarea'); t.value = S.refLink; document.body.appendChild(t); t.select(); try { document.execCommand('copy'); done(); } catch (x) { toast(S.refLink); } t.remove(); }
+    }
+  };
   $('skins').onclick = e => { const id = e.target.dataset && e.target.dataset.skin; if (id) act('skin', { id }); };
   $('daily').onclick = e => { if (e.target.dataset && e.target.dataset.login) act('login').then(r => r.ok && toast('Бонус получен!')); };
   $('tasks').onclick = e => {
     const d = e.target.dataset || {};
-    if (d.open) { tg && tg.openTelegramLink ? tg.openTelegramLink(CHANNEL_LINK) : window.open(CHANNEL_LINK, '_blank'); }
+    if (d.open) { const L = d.link || CHANNEL_LINK; tg && tg.openTelegramLink ? tg.openTelegramLink(L) : window.open(L, '_blank'); }
     else if (d.claim) act('claim', { task: d.claim }).then(r => r.ok && toast('Награда получена!'));
   };
 
@@ -291,7 +323,22 @@
     const sel = adminUsers.find(u => u.id === adminSel);
     $('asel').textContent = sel ? 'Выбран: ' + sel.name + ' (' + sel.id + ')' : 'Выберите игрока из списка';
   }
-  async function loadAdmin() { const r = await act('admin_users'); if (r.ok) { adminUsers = r.users; renderAdmin(); } }
+  let adminPromos = [];
+  function renderPromos() {
+    $('plist').innerHTML = adminPromos.map(p => '<div class="row-top"><span><b>' + esc(p.code) + '</b> · +' + fmt(p.coins) + ' · ' + p.used + ' / ' + p.max_uses +
+      '</span><button class="act" data-pdel="' + esc(p.code) + '">Удалить</button></div>').join('') || '<p class="note">Промокодов пока нет</p>';
+  }
+  async function loadAdmin() {
+    const r = await act('admin_users'); if (r.ok) { adminUsers = r.users; renderAdmin(); }
+    const p = await act('admin_promos'); if (p.ok) { adminPromos = p.promos; renderPromos(); }
+  }
+  $('pcreate').onclick = async () => {
+    const coins = parseInt($('pcoins').value, 10), uses = parseInt($('puses').value, 10);
+    if (!coins || !uses) return toast('Введите монеты и число активаций');
+    const r = await act('admin_promo_create', { code: $('pcode').value.trim(), coins, uses });
+    if (r.ok) { toast('Создан промокод: ' + r.code); $('pcode').value = ''; $('pcoins').value = ''; $('puses').value = ''; loadAdmin(); }
+  };
+  $('plist').onclick = async e => { const c = e.target.dataset && e.target.dataset.pdel; if (c && confirm('Удалить промокод ' + c + '?')) { await act('admin_promo_delete', { code: c }); loadAdmin(); } };
   $('alist').onclick = e => { const row = e.target.closest('[data-uid]'); if (row) { adminSel = Number(row.dataset.uid); renderAdmin(); } };
   $('asearch').oninput = renderAdmin;
   $('aself').onclick = () => { adminSel = S.me; renderAdmin(); };
