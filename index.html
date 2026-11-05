@@ -96,6 +96,7 @@
   .chip { flex:1; min-width:52px; padding:10px 0; border:0; border-radius:10px; background:var(--panel); color:var(--moon); font-weight:700; font-size:14px; cursor:pointer; }
   .chip.on { background:var(--ice); color:var(--btntext); }
   .qrow { display:flex; gap:6px; margin-bottom:8px; } .qrow .act { flex:1; padding:9px 0; }
+  .evb { align-self:stretch; margin:2px 56px 0 0; padding:7px 12px; border-radius:12px; background:linear-gradient(90deg,#ff7a2f,#ffb347); color:#2a1200; font-size:13px; font-weight:700; }
   .days { display:grid; grid-template-columns:repeat(5,1fr); gap:6px; margin:12px 0; }
   .day { background:rgba(127,127,127,.18); border-radius:10px; padding:8px 2px; text-align:center; font-size:12px; color:var(--muted); }
   .day b { display:block; font-size:15px; color:var(--moon); } .day.done { background:var(--ok); color:#06210f; } .day.done b { color:#06210f; }
@@ -122,6 +123,7 @@
   <main>
     <section class="tab on" id="t-click">
       <button class="corner" id="toprate" aria-label="Рейтинг">🏆</button>
+      <div class="evb" id="evb" hidden><span id="evtxt"></span><b id="evtime"></b></div>
       <div class="stage" id="stage">
         <button id="tap" aria-label="Тап"><img id="emb" src="wolf.png" alt=""></button>
       </div>
@@ -232,6 +234,10 @@
   const fmt = n => Math.floor(n).toLocaleString('ru-RU');
   let S = null, pending = 0, last = Date.now(), flushTimer = null, chain = Promise.resolve(), curSkin = null;
 
+  const evOn = () => S && S.event && S.event.active;
+  const effTap = () => S.perTap * (evOn() ? S.event.tapMult : 1);
+  const evCard = () => (evOn() ? S.event.cardMult : 1);
+
   function toast(t) { const e = $('toast'); e.textContent = t; e.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => e.classList.remove('show'), 2400); }
 
   async function api(action, extra) {
@@ -245,7 +251,7 @@
 
   function setState(st) {
     S = st; last = Date.now();
-    S.coins += pending * S.perTap;                 // клики, сделанные пока шёл запрос
+    S.coins += pending * effTap();                 // клики, сделанные пока шёл запрос
     S.energy = Math.max(0, S.energy - pending);
     render();
   }
@@ -269,9 +275,9 @@
   function tap(x, y) {
     if (!S) return;
     if (S.energy < 1) { tg && tg.HapticFeedback && tg.HapticFeedback.notificationOccurred('error'); return; }
-    S.energy -= 1; S.coins += S.perTap; pending++;
+    S.energy -= 1; S.coins += effTap(); pending++;
     tg && tg.HapticFeedback && tg.HapticFeedback.impactOccurred('light');
-    const f = document.createElement('div'); f.className = 'float'; f.textContent = '+' + S.perTap;
+    const f = document.createElement('div'); f.className = 'float'; f.textContent = '+' + effTap();
     const r = $('stage').getBoundingClientRect();
     f.style.left = (x - r.left - 10) + 'px'; f.style.top = (y - r.top - 20) + 'px';
     $('stage').appendChild(f); setTimeout(() => f.remove(), 800);
@@ -297,10 +303,12 @@
   }
   function render() {
     applySkin(); renderMain(); $('navadmin').hidden = !S.admin;
+    $('evb').hidden = !evOn();
+    if (evOn()) $('evtxt').textContent = '🔥 Выходные: ×' + S.event.tapMult + ' к кликам, ×' + S.event.cardMult + ' к карточкам · до конца ';
     $('refcard').innerHTML = '<div class="card"><b>Пригласи друга</b><p>За каждого друга, который впервые зайдёт в игру по вашей ссылке, вы получите ' + fmt(S.refReward) +
       ' монет. Приглашено друзей: ' + S.refs + '</p>' + (S.refLink ? '<div class="btns" style="flex-direction:row;margin-top:10px"><button class="act ok" data-share="1">Поделиться</button><button class="act" data-copy="1">Скопировать ссылку</button></div>'
         : '<p>Реферальная ссылка пока не настроена.</p>') + '</div>';
-    $('rate').textContent = S.rate ? '🪙 +' + fmt(S.rate) + ' в час' : '';
+    $('rate').textContent = S.rate ? '🪙 +' + fmt(S.rate * evCard()) + ' в час' + (evOn() ? ' 🔥' : '') : '';
     $('cardnote').textContent = 'Карточки дают монеты, даже когда игра закрыта: первые ' + S.offline.hours + ' ч отсутствия полностью, дальше в ' + S.offline.slow + ' раз медленнее. Каждую карточку можно купить до ' + S.cards[0].max + ' раз.';
     $('cards').innerHTML = S.cards.map(c => {
       const full = c.count >= c.max;
@@ -530,11 +538,14 @@
     if (!S) return;
     const now = Date.now(), dt = (now - last) / 1000; last = now;
     S.energy = Math.min(S.maxEnergy, S.energy + dt * S.regen);
-    S.coins += (S.rate || 0) * dt / 3600;
+    S.coins += (S.rate || 0) * evCard() * dt / 3600;
     S.resetIn = Math.max(0, S.resetIn - dt);
     if (S.resetIn <= 0 && !S.rf) { S.rf = 1; act('state'); }  // новый день: обновить задания
     const s = Math.floor(S.resetIn), p = n => String(n).padStart(2, '0');
     $('timer').textContent = p(Math.floor(s / 3600)) + ':' + p(Math.floor(s % 3600 / 60)) + ':' + p(s % 60);
+    S.event.change = Math.max(0, S.event.change - dt);
+    if (S.event.change <= 0 && !S.evf) { S.evf = 1; act('state'); }     // событие началось или закончилось
+    if (evOn()) { const e = Math.floor(S.event.change); $('evtime').textContent = p(Math.floor(e / 3600)) + ':' + p(Math.floor(e % 3600 / 60)) + ':' + p(e % 60); }
     renderMain();
   }, 1000);
   document.addEventListener('visibilitychange', () => { if (document.hidden) flush(); else act('state'); });
