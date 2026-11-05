@@ -86,6 +86,16 @@
   .rollmark { position:absolute; left:50%; top:0; bottom:0; width:3px; margin-left:-1.5px; background:#ffd45c; z-index:2; box-shadow:0 0 12px #ffd45c; }
   #rollres img { width:min(60vw,240px); max-height:36vh; object-fit:contain; margin:6px 0; }
   #rollres button { margin:6px 4px 0; }
+  .day img { width:24px; height:24px; object-fit:contain; display:block; margin:2px auto 0; }
+  .wheelwrap { position:relative; width:220px; height:220px; margin:14px auto 6px; }
+  #upwheel { width:100%; height:100%; border-radius:50%; box-sizing:border-box; border:6px solid var(--ice); background:conic-gradient(#3ecf6e 0deg 169deg,#e5484d 169deg 360deg); }
+  .wptr { position:absolute; left:50%; top:-10px; margin-left:-11px; width:0; height:0; border-left:11px solid transparent; border-right:11px solid transparent; border-top:20px solid #ffd45c; z-index:2; filter:drop-shadow(0 2px 3px rgba(0,0,0,.5)); }
+  .wctr { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:94px; height:94px; border-radius:50%; background:rgba(0,0,0,.6); color:#fff; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .wctr b { font-size:26px; } .wctr span { font-size:13px; color:#cfd8dc; }
+  .chips { display:flex; flex-wrap:wrap; gap:6px; margin:12px 0; }
+  .chip { flex:1; min-width:52px; padding:10px 0; border:0; border-radius:10px; background:var(--panel); color:var(--moon); font-weight:700; font-size:14px; cursor:pointer; }
+  .chip.on { background:var(--ice); color:var(--btntext); }
+  .qrow { display:flex; gap:6px; margin-bottom:8px; } .qrow .act { flex:1; padding:9px 0; }
   .days { display:grid; grid-template-columns:repeat(5,1fr); gap:6px; margin:12px 0; }
   .day { background:rgba(127,127,127,.18); border-radius:10px; padding:8px 2px; text-align:center; font-size:12px; color:var(--muted); }
   .day b { display:block; font-size:15px; color:var(--moon); } .day.done { background:var(--ok); color:#06210f; } .day.done b { color:#06210f; }
@@ -136,8 +146,21 @@
 
     <section class="tab" id="t-cases">
       <h2>Кейсы</h2>
-      <p class="note">В кейсе случайный скин, шансы указаны в процентах. Если скин уже есть, вернётся 30% цены кейса (эти монеты в рейтинг не идут).</p>
-      <div id="caselist"></div>
+      <div class="seg" id="cseg"><button class="on" data-cs="cases">Кейсы</button><button data-cs="up">Апгрейд монет</button></div>
+      <div id="cs-cases">
+        <p class="note">В кейсе случайный скин, шансы указаны в процентах. Если скин уже есть, вернётся 30% цены кейса (эти монеты в рейтинг не идут).</p>
+        <div id="caselist"></div>
+      </div>
+      <div id="cs-up" hidden>
+        <p class="note">Выберите множитель и ставку. Чем выше множитель, тем меньше шанс. Выигранные монеты в рейтинг не идут.</p>
+        <div class="wheelwrap"><div class="wptr"></div><div id="upwheel"></div><div class="wctr"><b id="upx">×2</b><span id="upch">47%</span></div></div>
+        <div class="chips" id="upchips"></div>
+        <input id="upbet" type="number" inputmode="numeric" min="1" placeholder="Ставка (монет)">
+        <div class="qrow"><button class="act" data-q="0.1">10%</button><button class="act" data-q="0.5">50%</button><button class="act" data-q="1">Всё</button></div>
+        <p class="note" id="upwin" style="text-align:center"></p>
+        <button class="act ok" id="upgo" style="width:100%">Крутить</button>
+        <p id="upres" style="text-align:center;margin-top:12px;font-weight:700;min-height:22px"></p>
+      </div>
     </section>
 
     <section class="tab" id="t-tasks">
@@ -301,8 +324,9 @@
       const btn = cur ? '<button class="act" disabled>Выбрано</button>'
         : k.owned ? '<button class="act ok" data-skin="' + k.id + '">Выбрать</button>'
         : k.case ? '<button class="act" disabled>🔒 Кейс</button>'
+        : k.price === null ? '<button class="act" disabled>🔒 Эксклюзив</button>'
         : '<button class="act" data-skin="' + k.id + '"' + (S.coins < k.price ? ' disabled' : '') + '>🪙 ' + fmt(k.price) + '</button>';
-      const sub = k.case ? (k.owned ? 'Из кейса «' + caseName(k.case) + '»' : 'Выпадает из кейса «' + caseName(k.case) + '»') : (k.price ? (k.owned ? 'Куплено' : 'Скин за монеты') : 'Бесплатно');
+      const sub = k.case ? (k.owned ? 'Из кейса «' + caseName(k.case) + '»' : 'Выпадает из кейса «' + caseName(k.case) + '»') : (k.price === null ? (k.owned ? 'Эксклюзив: у вас есть' : 'Эксклюзив, больше не продаётся') : k.price ? (k.owned ? 'Куплено' : 'Скин за монеты') : 'Бесплатно');
       return '<div class="card"><div class="top"><div class="sk"><img src="' + SKIN_IMG[k.id] + '" alt=""><div><b>' + k.name + '</b><p>' + sub + '</p></div></div>' + btn + '</div></div>';
     }).join('');
     const has = id => (S.skins.find(x => x.id === id) || {}).owned;
@@ -313,10 +337,10 @@
     const L = S.login, done = L.claimed ? L.day : L.day - 1;
     let cells = '';
     for (let i = 1; i <= L.days; i++)
-      cells += '<div class="day' + (i <= done ? ' done' : (i === L.day ? ' today' : '')) + '"><b>' + i + '</b>' + (i * L.step / 1000) + 'к</div>';
-    $('daily').innerHTML = '<div class="card"><b>Ежедневный бонус</b><p>Заходите каждый день: награда растёт до 10-го дня, потом всё начинается сначала. Пропущенный день сбрасывает серию.</p>' +
+      cells += '<div class="day' + (i <= done ? ' done' : (i === L.day ? ' today' : '')) + '"><b>' + i + '</b>' + (i === L.days ? '<img src="card-' + String(L.cardIndex + 1).padStart(2, '0') + '.png" alt="">' : (i * L.step / 1000) + 'к') + '</div>';
+    $('daily').innerHTML = '<div class="card"><b>Ежедневный бонус</b><p>Заходите каждый день: награда растёт до 10-го дня, а на 10-й день ещё и карточка ' + L.cardName + '. Потом всё начинается сначала. Пропущенный день сбрасывает серию.</p>' +
       '<div class="days">' + cells + '</div>' +
-      (L.claimed ? '<button class="act" disabled>Сегодня получено</button>' : '<button class="act ok" data-login="1">Забрать +' + fmt(L.day * L.step) + '</button>') + '</div>';
+      (L.claimed ? '<button class="act" disabled>Сегодня получено</button>' : '<button class="act ok" data-login="1">Забрать +' + fmt(L.day * L.step) + (L.day === L.days ? ' + ' + L.cardName : '') + '</button>') + '</div>';
 
     $('tasks').innerHTML = S.tasks.map(t => {
       const done = t.progress >= t.goal;
@@ -354,7 +378,7 @@
     }
   };
   $('skins').onclick = e => { const id = e.target.dataset && e.target.dataset.skin; if (id) act('skin', { id }); };
-  $('daily').onclick = e => { if (e.target.dataset && e.target.dataset.login) act('login').then(r => r.ok && toast('Бонус получен!')); };
+  $('daily').onclick = e => { if (e.target.dataset && e.target.dataset.login) act('login').then(r => r.ok && toast(r.card && r.card.given ? 'Бонус получен! Карточка ' + r.card.name + ' теперь ваша' : 'Бонус получен!')); };
   $('tasks').onclick = e => {
     const d = e.target.dataset || {};
     if (d.open) { const L = d.link || CHANNEL_LINK; tg && tg.openTelegramLink ? tg.openTelegramLink(L) : window.open(L, '_blank'); }
@@ -419,6 +443,46 @@
   $('nav').onclick = e => { const b = e.target.closest('button'); if (b) showTab(b.dataset.t); };
   $('toprate').onclick = () => showTab('top');
   $('topback').onclick = () => showTab('click');
+
+  // ---- Апгрейд монет ----
+  let upMult = 2, upRot = 0, upBusy = false;
+  const upChance = () => ((S && S.upgrade.mults.find(x => x.mult === upMult)) || { chance: 47 }).chance;
+  function updUp() {
+    if (!S) return;
+    const ch = upChance();
+    $('upwheel').style.background = 'conic-gradient(#3ecf6e 0deg ' + (ch * 3.6) + 'deg,#e5484d ' + (ch * 3.6) + 'deg 360deg)';
+    $('upx').textContent = '×' + upMult; $('upch').textContent = ch + '%';
+    $('upchips').innerHTML = S.upgrade.mults.map(x => '<button class="chip' + (x.mult === upMult ? ' on' : '') + '" data-mult="' + x.mult + '">×' + x.mult + '</button>').join('');
+    const bet = Math.floor(Number($('upbet').value));
+    $('upwin').textContent = bet > 0 ? 'Выигрыш при успехе: ' + fmt(bet * upMult) + ' монет (+' + fmt(bet * upMult - bet) + ')' : 'Шанс успеха: ' + ch + '%';
+  }
+  $('upchips').onclick = e => { const m = parseFloat(e.target.dataset && e.target.dataset.mult); if (m) { upMult = m; updUp(); } };
+  $('upbet').oninput = updUp;
+  document.querySelector('.qrow').onclick = e => { const q = parseFloat(e.target.dataset && e.target.dataset.q); if (q && S) { $('upbet').value = Math.max(1, Math.floor(S.coins * q)); updUp(); } };
+  $('cseg').onclick = e => {
+    const k = e.target.dataset && e.target.dataset.cs; if (!k) return;
+    document.querySelectorAll('#cseg button').forEach(b => b.classList.toggle('on', b === e.target));
+    $('cs-cases').hidden = k !== 'cases'; $('cs-up').hidden = k !== 'up'; if (k === 'up') updUp();
+  };
+  async function upSpin() {
+    if (upBusy || !S) return;
+    const bet = Math.floor(Number($('upbet').value));
+    if (!bet || bet < 1) return toast('Введите ставку');
+    if (bet > Math.floor(S.coins)) return toast('Не хватает монет');
+    upBusy = true; $('upres').textContent = '';
+    const r = await queue(async () => { await sendTaps(); return api('upgrade', { bet, mult: upMult }); });
+    if (!r.ok) { handle(r); upBusy = false; return; }
+    const target = Math.ceil((upRot + 1) / 360) * 360 + 360 * 5 + ((360 - r.pos * 360) % 360);
+    const w = $('upwheel'); w.style.transition = 'transform 3.6s cubic-bezier(.12,.7,.15,1)'; w.style.transform = 'rotate(' + target + 'deg)'; upRot = target;
+    setTimeout(() => {
+      handle(r); upBusy = false;
+      $('upres').style.color = r.win ? '#3ecf6e' : '#ff7a7f';
+      $('upres').textContent = r.win ? 'Выигрыш! +' + fmt(r.payout - r.bet) + ' монет' : 'Проигрыш: −' + fmt(r.bet) + ' монет';
+      tg && tg.HapticFeedback && tg.HapticFeedback.notificationOccurred(r.win ? 'success' : 'error');
+      updUp();
+    }, 3800);
+  }
+  $('upgo').onclick = upSpin;
 
   // ---- Кейсы ----
   let rolling = false;
