@@ -28,6 +28,9 @@
   html[data-skin="black_hole"] { --bgfill:radial-gradient(circle at 50% 22%,#2c1760,#0d0822 58%,#04020d); --panel:rgba(160,140,255,.14); --moon:#eeeaff; --ice:#a9b8ff; --ember:#e0d3ff; --muted:#8f88c0; --nav:#05030f; --navtxt:#8f88c0; --line:rgba(169,184,255,.25); --btntext:#0d0822; --dis:rgba(160,140,255,.18); --bar:linear-gradient(90deg,#6a5cff,#b9c4ff); }
   html[data-skin="neptune"] { --bgfill:radial-gradient(circle at 50% 18%,#2f74c0,#154484 55%,#0a2552); --panel:rgba(94,224,208,.16); --moon:#eaf6ff; --ice:#5ee0d0; --ember:#ffd45c; --muted:#93bfe0; --nav:#071a3d; --navtxt:#93bfe0; --line:rgba(94,224,208,.28); --btntext:#062a36; --dis:rgba(94,224,208,.2); --bar:linear-gradient(90deg,#2cc7b6,#8ff0e4); }
   html[data-skin="king"] { --bgfill:#000; --panel:rgba(255,255,255,.07); --moon:#f4e7c4; --ice:#e7c36a; --ember:#e7c36a; --muted:#a8925a; --nav:#0a0a0a; --navtxt:#a8925a; --line:rgba(231,195,106,.25); --btntext:#1a1200; --dis:rgba(255,255,255,.1); --bar:linear-gradient(90deg,#c9a24a,#f5dc8d); }
+  html[data-skin="s1_gold"] { --bgfill:radial-gradient(circle at 50% 18%,#4a3600,#1a1200 55%,#0a0700); --panel:rgba(255,200,60,.14); --moon:#fff4d0; --ice:#ffc933; --ember:#ffd966; --muted:#c9a54e; --nav:#0b0800; --navtxt:#c9a54e; --line:rgba(255,200,60,.3); --btntext:#241800; --dis:rgba(255,200,60,.18); --bar:linear-gradient(90deg,#e0a800,#ffe27a); }
+  html[data-skin="s1_silver"] { --bgfill:radial-gradient(circle at 50% 18%,#4a5260,#222830 55%,#0f1216); --panel:rgba(210,220,235,.14); --moon:#f2f5fa; --ice:#cfd8e6; --ember:#e6ecf5; --muted:#a3adbd; --nav:#0c0f13; --navtxt:#a3adbd; --line:rgba(210,220,235,.28); --btntext:#14181e; --dis:rgba(210,220,235,.16); --bar:linear-gradient(90deg,#9aa6b8,#eef2f8); }
+  html[data-skin="s1_bronze"] { --bgfill:radial-gradient(circle at 50% 18%,#5a3418,#2a1709 55%,#120a04); --panel:rgba(230,150,80,.15); --moon:#ffeedd; --ice:#e8924a; --ember:#f2b074; --muted:#c79566; --nav:#0f0702; --navtxt:#c79566; --line:rgba(230,150,80,.3); --btntext:#241006; --dis:rgba(230,150,80,.18); --bar:linear-gradient(90deg,#b8651f,#f0b07a); }
   * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none; -webkit-user-select:none; }
   html, body { margin:0; height:100%; background:var(--bgfill); background-size:auto; color:var(--moon); font-family:system-ui,-apple-system,"Segoe UI",sans-serif; overflow:hidden; touch-action:manipulation; }
   .app { height:100%; display:flex; flex-direction:column; }
@@ -76,8 +79,8 @@
   .it { width:calc(33.3% - 6px); text-align:center; font-size:11px; background:rgba(127,127,127,.15); border-radius:10px; padding:6px 2px; }
   .it img { width:56px; height:56px; object-fit:contain; display:block; margin:0 auto; }
   .it b { display:block; font-size:12px; margin-top:2px; font-weight:600; } .it span { color:var(--muted); }
-  #roll { position:fixed; inset:0; background:rgba(0,0,0,.84); z-index:8; display:flex; align-items:center; justify-content:center; padding:16px; }
-  #roll[hidden] { display:none; }
+  #roll, #prz { position:fixed; inset:0; background:rgba(0,0,0,.84); z-index:8; display:flex; align-items:center; justify-content:center; padding:16px; }
+  #roll[hidden], #prz[hidden] { display:none; }
   .rollbox { width:100%; max-width:440px; text-align:center; color:#fff; }
   .rollwin { position:relative; overflow:hidden; height:112px; background:rgba(255,255,255,.08); border-radius:14px; }
   .rolltrack { display:flex; position:absolute; left:0; top:6px; will-change:transform; }
@@ -198,8 +201,12 @@
     <section class="tab" id="t-top">
       <button class="act" id="topback" style="margin-bottom:10px">← Назад</button>
       <h2>Рейтинг</h2>
-      <p class="note" id="rank">По всем заработанным монетам</p>
-      <div id="toplist"></div>
+      <div class="seg" id="rkseg"><button class="on" data-rk="season">Сезон</button><button data-rk="all">За всё время</button></div>
+      <div id="rk-season"><div id="seasoninfo"></div><div id="seasonlist"></div></div>
+      <div id="rk-all" hidden>
+        <p class="note" id="rank">По всем заработанным монетам</p>
+        <div id="toplist"></div>
+      </div>
     </section>
   </main>
   <nav id="nav">
@@ -214,6 +221,7 @@
   <div class="rollwin" id="rollwin"><div class="rollmark"></div><div class="rolltrack" id="rolltrack"></div></div>
   <div id="rollres" hidden></div>
 </div></div>
+<div id="prz" hidden><div class="rollbox"><h2 style="color:#fff">Итоги сезона!</h2><div id="przbody"></div><button class="act ok" id="przclose" style="margin-top:12px">Забрать</button></div></div>
 <div id="toast"></div>
 <div id="block"><div><div style="font-size:60px">🐺</div><p>Откройте игру через бота в Telegram.</p></div></div>
 
@@ -222,9 +230,9 @@
   const API_URL = "https://magazinger.pythonanywhere.com/api";
   const CHANNEL_LINK = "https://t.me/wolfclik";
   const SKIN_IMG = { default: 'wolf.png', golden: 'skin-golden.png', valentine: 'skin-valentine.png', white_wolf: 'skin-whitewolf.png', muffin: 'skin-muffin.png', bitcoin: 'skin-bitcoin.png', gram: 'skin-gram.png', gta6: 'skin-gta6.png', matrix: 'skin-matrix.png', beer: 'skin-beer.png',
-    turtles: 'skin-turtles.png', great_wave: 'skin-greatwave.png', black_hole: 'skin-blackhole.png', neptune: 'skin-neptune.png', king: 'skin-king.png' };
+    turtles: 'skin-turtles.png', great_wave: 'skin-greatwave.png', black_hole: 'skin-blackhole.png', neptune: 'skin-neptune.png', king: 'skin-king.png', s1_gold: 'skin-s1gold.png', s1_silver: 'skin-s1silver.png', s1_bronze: 'skin-s1bronze.png' };
   const SKIN_HDR = { default: '#0e1a22', golden: '#dcaa37', valentine: '#e24a73', white_wolf: '#3c3c3c', muffin: '#170f4d', bitcoin: '#1d150a', gram: '#0f2f66', gta6: '#2a0a4d', matrix: '#010603', beer: '#e3ab32',
-    turtles: '#124126', great_wave: '#ffb36b', black_hole: '#0d0822', neptune: '#154484', king: '#000000' };
+    turtles: '#124126', great_wave: '#ffb36b', black_hole: '#0d0822', neptune: '#154484', king: '#000000', s1_gold: '#1a1200', s1_silver: '#222830', s1_bronze: '#2a1709' };
 
   const tg = window.Telegram && window.Telegram.WebApp;
   if (tg) { tg.ready(); tg.expand(); }
@@ -302,7 +310,8 @@
     if (tg) { tg.setHeaderColor && tg.setHeaderColor(c); tg.setBackgroundColor && tg.setBackgroundColor(c); }
   }
   function render() {
-    applySkin(); renderMain(); $('navadmin').hidden = !S.admin;
+    applySkin(); renderMain();
+    if (S.newPrizes && S.newPrizes.length && !przShown) showPrizes(); $('navadmin').hidden = !S.admin;
     $('evb').hidden = !evOn();
     if (evOn()) $('evtxt').textContent = '🔥 Выходные: ×' + S.event.tapMult + ' к кликам, ×' + S.event.cardMult + ' к карточкам · до конца ';
     $('refcard').innerHTML = '<div class="card"><b>Пригласи друга</b><p>За каждого друга, который впервые зайдёт в игру по вашей ссылке, вы получите ' + fmt(S.refReward) +
@@ -334,7 +343,7 @@
         : k.case ? '<button class="act" disabled>🔒 Кейс</button>'
         : k.price === null ? '<button class="act" disabled>🔒 Эксклюзив</button>'
         : '<button class="act" data-skin="' + k.id + '"' + (S.coins < k.price ? ' disabled' : '') + '>🪙 ' + fmt(k.price) + '</button>';
-      const sub = k.case ? (k.owned ? 'Из кейса «' + caseName(k.case) + '»' : 'Выпадает из кейса «' + caseName(k.case) + '»') : (k.price === null ? (k.owned ? 'Эксклюзив: у вас есть' : 'Эксклюзив, больше не продаётся') : k.price ? (k.owned ? 'Куплено' : 'Скин за монеты') : 'Бесплатно');
+      const sub = k.case ? (k.owned ? 'Из кейса «' + caseName(k.case) + '»' : 'Выпадает из кейса «' + caseName(k.case) + '»') : (k.prize ? (k.owned ? 'Награда сезона: у вас есть' : 'Награда за топ-3 сезона') : k.price === null ? (k.owned ? 'Эксклюзив: у вас есть' : 'Эксклюзив, больше не продаётся') : k.price ? (k.owned ? 'Куплено' : 'Скин за монеты') : 'Бесплатно');
       return '<div class="card"><div class="top"><div class="sk"><img src="' + SKIN_IMG[k.id] + '" alt=""><div><b>' + k.name + '</b><p>' + sub + '</p></div></div>' + btn + '</div></div>';
     }).join('');
     const has = id => (S.skins.find(x => x.id === id) || {}).owned;
@@ -431,6 +440,39 @@
     if (r.ok) { toast('Готово'); $('aamount').value = ''; loadAdmin(); }
   };
 
+  // ---- Сезоны ----
+  const fmtLeft = s => { const d = Math.floor(s / 86400), h = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60); return (d ? d + ' д ' : '') + h + ' ч ' + m + ' мин'; };
+  const MEDAL = ['🥇', '🥈', '🥉'];
+  const skinName = id => (S.skins.find(x => x.id === id) || {}).name || id;
+  async function loadSeason() {
+    const r = await act('season_top'); if (!r.ok) return;
+    const prizes = r.prizes.map((p, i) => '<div class="it">' + (p.kind === 'skin' ? '<img src="' + SKIN_IMG[p.val] + '" alt=""><b>' + MEDAL[i] + ' ' + (i + 1) + ' место</b><span>' + skinName(p.val) + '</span>'
+      : '<b style="font-size:30px;margin:8px 0">' + MEDAL[i] + '</b><b>' + (i + 1) + ' место</b><span>🪙 ' + fmt(p.val) + '</span>') + '</div>').join('');
+    const prev = r.prev ? '<p class="note">Прошлый сезон: ' + r.prev.winners.map(w => MEDAL[w.place - 1] + ' ' + w.name.replace(/[<>&]/g, '')).join(' · ') + '</p>' : '';
+    $('seasoninfo').innerHTML = '<div class="card"><b>Сезон ' + r.n + '</b><p>До конца: ' + fmtLeft(r.endsIn) + '</p><p>Ваши очки: ' + fmt(r.pts) + (r.rank ? ' · ваше место: ' + r.rank : '') +
+      '</p><p class="note">Очки: монеты, заработанные кликами. Награды за топ-3:</p><div class="items">' + prizes + '</div>' + prev + '</div>';
+    const me = ((tg && tg.initDataUnsafe && tg.initDataUnsafe.user) || {}).first_name;
+    $('seasonlist').innerHTML = r.top.map((p, i) => '<div class="row-top' + (p.name === me ? ' me' : '') + '"><span>' + (MEDAL[i] || (i + 1) + '.') + ' ' + p.name.replace(/[<>&]/g, '') + '</span><b>' + fmt(p.pts) + '</b></div>').join('') ||
+      '<p class="note">Пока никто не набрал очков. Покликайте первым!</p>';
+  }
+  $('rkseg').onclick = e => {
+    const k = e.target.dataset && e.target.dataset.rk; if (!k) return;
+    document.querySelectorAll('#rkseg button').forEach(b => b.classList.toggle('on', b === e.target));
+    $('rk-season').hidden = k !== 'season'; $('rk-all').hidden = k !== 'all';
+    if (k === 'season') loadSeason(); else loadTop();
+  };
+  let przShown = false;
+  function showPrizes() {
+    przShown = true;
+    $('przbody').innerHTML = S.newPrizes.map(p => {
+      const [kind, val] = p.prize.split(':');
+      return '<div style="margin:10px 0;color:#fff"><p>' + MEDAL[p.place - 1] + ' Сезон ' + p.season + ': вы заняли ' + p.place + ' место!</p>' +
+        (kind === 'skin' ? '<img src="' + SKIN_IMG[val] + '" alt="" style="width:150px;height:150px;object-fit:contain"><p>Скин «' + skinName(val) + '» теперь ваш. Он в магазине, в разделе «Скины».</p>' : '<p>Награда: 🪙 ' + fmt(val) + ' монет</p>') + '</div>';
+    }).join('');
+    $('prz').hidden = false;
+  }
+  $('przclose').onclick = () => { $('prz').hidden = true; przShown = false; act('prizes_seen'); };
+
   async function loadTop() {
     const r = await act('top'); if (!r.ok) return;
     $('rank').textContent = 'Ваше место: ' + r.rank + ' · по всем заработанным монетам';
@@ -444,7 +486,7 @@
     const navName = name === 'top' ? 'click' : name;
     document.querySelectorAll('nav button').forEach(x => x.classList.toggle('on', x.dataset.t === navName));
     document.querySelectorAll('.tab').forEach(x => x.classList.toggle('on', x.id === 't-' + name));
-    if (name === 'top') loadTop();
+    if (name === 'top') { $('rk-season').hidden = false; $('rk-all').hidden = true; document.querySelectorAll('#rkseg button').forEach(b => b.classList.toggle('on', b.dataset.rk === 'season')); loadSeason(); }
     if (name === 'admin') loadAdmin();
     if (name === 'tasks' || name === 'shop' || name === 'cases') act('state');
   }
