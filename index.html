@@ -99,7 +99,9 @@
   .chip { flex:1; min-width:52px; padding:10px 0; border:0; border-radius:10px; background:var(--panel); color:var(--moon); font-weight:700; font-size:14px; cursor:pointer; }
   .chip.on { background:var(--ice); color:var(--btntext); }
   .qrow { display:flex; gap:6px; margin-bottom:8px; } .qrow .act { flex:1; padding:9px 0; }
-  .evb { align-self:stretch; margin:2px 56px 0 0; padding:7px 12px; border-radius:12px; background:linear-gradient(90deg,#ff7a2f,#ffb347); color:#2a1200; font-size:13px; font-weight:700; }
+  .evb { align-self:stretch; margin:50px 0 0 0; padding:7px 12px; border-radius:12px; background:linear-gradient(90deg,#ff7a2f,#ffb347); color:#2a1200; font-size:13px; font-weight:700; }
+  .corner.lcorner { left:12px; right:auto; width:auto; padding:0 12px; font-size:14px; font-weight:700; border-radius:22px; }
+  nav button span.nl { font-size:12px; }
   .days { display:grid; grid-template-columns:repeat(5,1fr); gap:6px; margin:12px 0; }
   .day { background:rgba(127,127,127,.18); border-radius:10px; padding:8px 2px; text-align:center; font-size:12px; color:var(--muted); }
   .day b { display:block; font-size:15px; color:var(--moon); } .day.done { background:var(--ok); color:#06210f; } .day.done b { color:#06210f; }
@@ -122,60 +124,61 @@
 </head>
 <body>
 <div class="app">
-  <header><small>Монеты</small><div id="coins">0</div><small id="rate"></small></header>
+  <header><small data-i>Монеты</small><div id="coins">0</div><small id="rate"></small></header>
   <main>
     <section class="tab on" id="t-click">
-      <button class="corner" id="toprate" aria-label="Рейтинг">🏆</button>
+      <button class="corner lcorner" id="langbtn" aria-label="Language">🌐 RU</button>
+      <button class="corner" id="toprate" aria-label="Рейтинг" data-ia>🏆</button>
       <div class="evb" id="evb" hidden><span id="evtxt"></span><b id="evtime"></b></div>
       <div class="stage" id="stage">
         <button id="tap" aria-label="Тап"><img id="emb" src="wolf.png" alt=""></button>
       </div>
       <div class="energy">
-        <div class="row"><span>Энергия</span><span id="etext">0 / 0</span></div>
+        <div class="row"><span data-i>Энергия</span><span id="etext">0 / 0</span></div>
         <div class="bar"><i id="ebar"></i></div>
-        <p class="note" style="text-align:center;margin:8px 0 0">🍀 Каждый клик: 1% шанс на +500 монет</p>
+        <p class="note" style="text-align:center;margin:8px 0 0" data-i>🍀 Каждый клик: 1% шанс на +500 монет</p>
       </div>
     </section>
 
     <section class="tab" id="t-shop">
-      <h2>Магазин</h2>
-      <div class="seg" id="seg"><button class="on" data-seg="up">Улучшения</button><button data-seg="cards">Карточки</button><button data-seg="skins">Скины</button></div>
+      <h2 data-i>Магазин</h2>
+      <div class="seg" id="seg"><button class="on" data-seg="up" data-i>Улучшения</button><button data-seg="cards" data-i>Карточки</button><button data-seg="skins" data-i>Скины</button></div>
       <div id="sg-up">
-      <div class="card"><div class="top"><div><b>Сила клика · ур. <span id="tl">0</span></b><p id="td"></p></div><button class="act" id="btap"></button></div></div>
-      <div class="card"><div class="top"><div><b>Запас энергии · ур. <span id="el">0</span></b><p id="ed"></p></div><button class="act" id="been"></button></div></div>
-      <div class="card"><div class="top"><div><b>Скорость энергии · ур. <span id="rl">0</span></b><p id="rd"></p></div><button class="act" id="bregen"></button></div></div>
+      <div class="card"><div class="top"><div><b><span data-i>Сила клика · ур.</span> <span id="tl">0</span></b><p id="td"></p></div><button class="act" id="btap"></button></div></div>
+      <div class="card"><div class="top"><div><b><span data-i>Запас энергии · ур.</span> <span id="el">0</span></b><p id="ed"></p></div><button class="act" id="been"></button></div></div>
+      <div class="card"><div class="top"><div><b><span data-i>Скорость энергии · ур.</span> <span id="rl">0</span></b><p id="rd"></p></div><button class="act" id="bregen"></button></div></div>
       </div>
       <div id="sg-cards" hidden><p class="note" id="cardnote"></p><div id="cards"></div></div>
       <div id="sg-skins" hidden><div id="skins"></div></div>
     </section>
 
     <section class="tab" id="t-cases">
-      <h2>Кейсы</h2>
-      <div class="seg" id="cseg"><button class="on" data-cs="cases">Кейсы</button><button data-cs="up">Апгрейд монет</button></div>
+      <h2 data-i>Кейсы</h2>
+      <div class="seg" id="cseg"><button class="on" data-cs="cases" data-i>Кейсы</button><button data-cs="up" data-i>Апгрейд монет</button></div>
       <div id="cs-cases">
-        <p class="note">В кейсе случайный скин, шансы указаны в процентах. Если скин уже есть, вернётся 30% цены кейса (эти монеты в рейтинг не идут).</p>
+        <p class="note" data-i>В кейсе случайный скин, шансы указаны в процентах. Если скин уже есть, вернётся 30% цены кейса (эти монеты в рейтинг не идут).</p>
         <div id="caselist"></div>
       </div>
       <div id="cs-up" hidden>
-        <p class="note">Выберите множитель и ставку. Чем выше множитель, тем меньше шанс. Выигранные монеты в рейтинг не идут.</p>
+        <p class="note" data-i>Выберите множитель и ставку. Чем выше множитель, тем меньше шанс. Выигранные монеты в рейтинг не идут.</p>
         <div class="wheelwrap"><div class="wptr"></div><div id="upwheel"></div><div class="wctr"><b id="upx">×2</b><span id="upch">47%</span></div></div>
         <div class="chips" id="upchips"></div>
-        <input id="upbet" type="number" inputmode="numeric" min="1" placeholder="Ставка (монет)">
-        <div class="qrow"><button class="act" data-q="0.1">10%</button><button class="act" data-q="0.5">50%</button><button class="act" data-q="1">Всё</button></div>
+        <input id="upbet" type="number" inputmode="numeric" min="1" placeholder="Ставка (монет)" data-ip>
+        <div class="qrow"><button class="act" data-q="0.1">10%</button><button class="act" data-q="0.5">50%</button><button class="act" data-q="1" data-i>Всё</button></div>
         <p class="note" id="upwin" style="text-align:center"></p>
-        <button class="act ok" id="upgo" style="width:100%">Крутить</button>
+        <button class="act ok" id="upgo" style="width:100%" data-i>Крутить</button>
         <p id="upres" style="text-align:center;margin-top:12px;font-weight:700;min-height:22px"></p>
       </div>
     </section>
 
     <section class="tab" id="t-tasks">
-      <h2>Задания</h2>
+      <h2 data-i>Задания</h2>
       <div id="daily"></div>
-      <p class="note">Ежедневные задания обновятся через <b id="timer">--:--:--</b></p>
+      <p class="note"><span data-i>Ежедневные задания обновятся через</span> <b id="timer">--:--:--</b></p>
       <div id="tasks"></div>
-      <h3>Промокод</h3>
-      <div class="card"><input id="promoin" placeholder="Введите промокод" autocapitalize="characters" autocomplete="off"><button class="act ok" id="promobtn">Активировать</button></div>
-      <h3>Друзья</h3>
+      <h3 data-i>Промокод</h3>
+      <div class="card"><input id="promoin" placeholder="Введите промокод" data-ip autocapitalize="characters" autocomplete="off"><button class="act ok" id="promobtn" data-i>Активировать</button></div>
+      <h3 data-i>Друзья</h3>
       <div id="refcard"></div>
     </section>
 
@@ -199,9 +202,9 @@
     </section>
 
     <section class="tab" id="t-top">
-      <button class="act" id="topback" style="margin-bottom:10px">← Назад</button>
-      <h2>Рейтинг</h2>
-      <div class="seg" id="rkseg"><button class="on" data-rk="season">Сезон</button><button data-rk="all">За всё время</button></div>
+      <button class="act" id="topback" style="margin-bottom:10px" data-i>← Назад</button>
+      <h2 data-i>Рейтинг</h2>
+      <div class="seg" id="rkseg"><button class="on" data-rk="season" data-i>Сезон</button><button data-rk="all" data-i>За всё время</button></div>
       <div id="rk-season"><div id="seasoninfo"></div><div id="seasonlist"></div></div>
       <div id="rk-all" hidden>
         <p class="note" id="rank">По всем заработанным монетам</p>
@@ -210,10 +213,10 @@
     </section>
   </main>
   <nav id="nav">
-    <button data-t="click" class="on"><span>🐺</span>Кликер</button>
-    <button data-t="shop"><span>🛍️</span>Магазин</button>
-    <button data-t="cases"><span>🎁</span>Кейсы</button>
-    <button data-t="tasks"><span>📅</span>Задания</button>
+    <button data-t="click" class="on"><span>🐺</span><span class="nl" data-i>Кликер</span></button>
+    <button data-t="shop"><span>🛍️</span><span class="nl" data-i>Магазин</span></button>
+    <button data-t="cases"><span>🎁</span><span class="nl" data-i>Кейсы</span></button>
+    <button data-t="tasks"><span>📅</span><span class="nl" data-i>Задания</span></button>
     <button data-t="admin" id="navadmin" hidden><span>🛠️</span>Админ</button>
   </nav>
 </div>
@@ -221,9 +224,9 @@
   <div class="rollwin" id="rollwin"><div class="rollmark"></div><div class="rolltrack" id="rolltrack"></div></div>
   <div id="rollres" hidden></div>
 </div></div>
-<div id="prz" hidden><div class="rollbox"><h2 style="color:#fff">Итоги сезона!</h2><div id="przbody"></div><button class="act ok" id="przclose" style="margin-top:12px">Забрать</button></div></div>
+<div id="prz" hidden><div class="rollbox"><h2 style="color:#fff" data-i>Итоги сезона!</h2><div id="przbody"></div><button class="act ok" id="przclose" style="margin-top:12px" data-i>Забрать</button></div></div>
 <div id="toast"></div>
-<div id="block"><div><div style="font-size:60px">🐺</div><p>Откройте игру через бота в Telegram.</p></div></div>
+<div id="block"><div><div style="font-size:60px">🐺</div><p data-i>Откройте игру через бота в Telegram.</p></div></div>
 
 <script>
   // Адрес вашего сервера (wolf_server.py на хостинге)
@@ -239,7 +242,34 @@
   if (!tg || !tg.initData) document.getElementById('block').style.display = 'flex';
 
   const $ = id => document.getElementById(id);
-  const fmt = n => Math.floor(n).toLocaleString('ru-RU');
+  // ---- Язык (RU / EN) ----
+  const EN = {"Монеты": "Coins", "Рейтинг": "Ranking", "Энергия": "Energy", "🍀 Каждый клик: 1% шанс на +500 монет": "🍀 Every tap: 1% chance for +500 coins", "Магазин": "Shop", "Улучшения": "Upgrades", "Карточки": "Cards", "Скины": "Skins", "Сила клика · ур.": "Tap power · lvl", "Запас энергии · ур.": "Energy capacity · lvl", "Скорость энергии · ур.": "Energy regen · lvl", "Кейсы": "Cases", "Апгрейд монет": "Coin upgrade", "В кейсе случайный скин, шансы указаны в процентах. Если скин уже есть, вернётся 30% цены кейса (эти монеты в рейтинг не идут).": "Each case contains a random skin; chances are shown in percent. If you already own the skin, 30% of the case price is returned (these coins do not count for the ranking).", "Выберите множитель и ставку. Чем выше множитель, тем меньше шанс. Выигранные монеты в рейтинг не идут.": "Choose a multiplier and a bet. The higher the multiplier, the lower the chance. Winnings do not count for the ranking.", "Ставка (монет)": "Bet (coins)", "Всё": "All", "Крутить": "Spin", "Задания": "Tasks", "Ежедневные задания обновятся через": "Daily tasks refresh in", "Промокод": "Promo code", "Введите промокод": "Enter promo code", "Активировать": "Redeem", "Друзья": "Friends", "← Назад": "← Back", "Сезон": "Season", "За всё время": "All time", "Кликер": "Clicker", "Итоги сезона!": "Season results!", "Забрать": "Claim", "Откройте игру через бота в Telegram.": "Open the game through the bot in Telegram.", "Пока вас не было: +{0} монет": "While you were away: +{0} coins", "🍀 Редкий клик! +{0}": "🍀 Lucky tap! +{0}", "🔥 Выходные: ×{0} к кликам, ×{1} к карточкам · до конца ": "🔥 Weekend: ×{0} taps, ×{1} cards · ends in ", "Пригласи друга": "Invite a friend", "За каждого друга, который впервые зайдёт в игру по вашей ссылке, вы получите {0} монет. Приглашено друзей: {1}": "For every friend who joins the game for the first time through your link, you get {0} coins. Friends invited: {1}", "Поделиться": "Share", "Скопировать ссылку": "Copy link", "Реферальная ссылка пока не настроена.": "The referral link is not set up yet.", "🪙 +{0} в час": "🪙 +{0}/hour", "Карточки дают монеты, даже когда игра закрыта: первые {0} ч отсутствия полностью, дальше в {1} раз медленнее. Каждую карточку можно купить до {2} раз.": "Cards earn coins even when the game is closed: the first {0} h away at full rate, then {1} times slower. You can buy each card up to {2} times.", "Максимум": "Max", "+{0} в час за штуку · окупается за {1} ч": "+{0}/hour each · pays back in {1} h", "Куплено: {0} / {1}": "Owned: {0} / {1}", " · даёт +{0} в час": " · gives +{0}/hour", "Сейчас {0} за клик, будет {1}": "Now {0} per tap, next: {1}", "Сейчас {0}, будет {1}": "Now {0}, next: {1}", "Сейчас {0} в секунду, будет {1}": "Now {0} per second, next: {1}", "Выбрано": "Selected", "Выбрать": "Select", "🔒 Кейс": "🔒 Case", "🔒 Эксклюзив": "🔒 Exclusive", "Из кейса «{0}»": "From case “{0}”", "Выпадает из кейса «{0}»": "Drops from case “{0}”", "Награда сезона: у вас есть": "Season prize: you own it", "Награда за топ-3 сезона": "Prize for the season top 3", "Эксклюзив: у вас есть": "Exclusive: you own it", "Эксклюзив, больше не продаётся": "Exclusive, no longer sold", "Куплено": "Owned", "Скин за монеты": "Skin for coins", "Бесплатно": "Free", "Классика": "Classic", "Кейс «{0}»": "Case “{0}”", "Повторка: вернётся {0} монет": "Duplicate: {0} coins back", "Открыть": "Open", "к": "k", "Ежедневный бонус": "Daily bonus", "Заходите каждый день: награда растёт до 10-го дня, а на 10-й день ещё и карточка {0}. Потом всё начинается сначала. Пропущенный день сбрасывает серию.": "Come back every day: the reward grows until day 10, and on day 10 you also get the {0} card. Then it starts over. A missed day resets the streak.", "Сегодня получено": "Claimed today", "Забрать +{0}": "Claim +{0}", "Получено": "Claimed", "Открыть канал": "Open channel", "Проверить +{0}": "Check +{0}", "Разовое задание · награда {0} монет": "One-time task · reward {0} coins", "Награда: {0} монет · {1} / {2}": "Reward: {0} coins · {1} / {2}", "Подпишись на канал @wolfclik": "Subscribe to the @wolfclik channel", "Подпишись на канал @Muffinews": "Subscribe to the @Muffinews channel", "Купи 3 любых улучшения": "Buy any 3 upgrades", "Заработай 1000 монет": "Earn 1000 coins", "Промокод активирован: +{0} монет": "Promo code redeemed: +{0} coins", "Играй в Wolf Clicker и собирай монеты! 🐺": "Play Wolf Clicker and collect coins! 🐺", "Ссылка скопирована": "Link copied", "Бонус получен! Карточка {0} теперь ваша": "Bonus claimed! The {0} card is yours now", "Бонус получен!": "Bonus claimed!", "Награда получена!": "Reward claimed!", " д ": " d ", " ч ": " h ", " мин": " min", "{0} место": "Place {0}", "Прошлый сезон:": "Last season:", "Сезон {0}": "Season {0}", "До конца:": "Time left:", "Ваши очки:": "Your points:", " · ваше место: {0}": " · your rank: {0}", "Очки: монеты, заработанные кликами. Награды за топ-3:": "Points: coins earned by tapping. Top-3 prizes:", "Пока никто не набрал очков. Покликайте первым!": "Nobody has scored yet. Be the first to tap!", "Сезон {0}: вы заняли {1} место!": "Season {0}: you finished in place {1}!", "Скин «{0}» теперь ваш. Он в магазине, в разделе «Скины».": "The skin “{0}” is yours now. You can find it in the Shop, under Skins.", "Награда: 🪙 {0} монет": "Prize: 🪙 {0} coins", "Ваше место: {0} · по всем заработанным монетам": "Your rank: {0} · by all coins earned", "Выигрыш при успехе: {0} монет (+{1})": "Payout on success: {0} coins (+{1})", "Шанс успеха: {0}%": "Success chance: {0}%", "Введите ставку": "Enter a bet", "Не хватает монет": "Not enough coins", "Выигрыш! +{0} монет": "You won! +{0} coins", "Проигрыш: −{0} монет": "You lost: −{0} coins", "Повторка: «{0}»": "Duplicate: “{0}”", "Такой скин уже есть. Возвращено {0} монет.": "You already own this skin. {0} coins returned.", "Новый скин: «{0}»!": "New skin: “{0}”!", "Надеть": "Equip", "Закрыть": "Close", "Нет связи с сервером": "No connection to the server", "Откройте игру через бота в Telegram": "Open the game through the bot in Telegram", "Нет доступа": "No access", "Неверные данные": "Invalid data", "Неверный множитель": "Invalid multiplier", "Ставка должна быть не меньше 1": "The bet must be at least 1", "Нет такого кейса": "No such case", "Нет такой карточки": "No such card", "Уже куплено": "Already bought", "Неизвестное улучшение": "Unknown upgrade", "Неизвестный скин": "Unknown skin", "Этот скин нельзя купить": "This skin cannot be bought", "Задание ещё не выполнено": "The task is not completed yet", "Бонус за сегодня уже получен": "Today's bonus is already claimed", "Вы ещё не подписаны на канал": "You are not subscribed to the channel yet", "Не удалось проверить подписку, попробуйте позже": "Could not verify the subscription, try again later", "Промокод не найден": "Promo code not found", "Вы уже активировали этот промокод": "You have already redeemed this promo code", "Промокод больше не действует": "This promo code is no longer valid", "Слишком много попыток, подождите несколько минут": "Too many attempts, please wait a few minutes", "Игрок не найден": "Player not found"};
+  let LANG = '';
+  try { LANG = localStorage.getItem('wc_lang') || ''; } catch (e) {}
+  if (LANG !== 'ru' && LANG !== 'en') {
+    const lc = (((tg && tg.initDataUnsafe && tg.initDataUnsafe.user) || {}).language_code || 'en').slice(0, 2);
+    LANG = ['ru', 'uk', 'be', 'kk'].includes(lc) ? 'ru' : 'en';
+  }
+  const tr = (k, ...a) => { let s = (LANG === 'en' && EN[k]) || k; a.forEach((v, i) => { s = s.split('{' + i + '}').join(v); }); return s; };
+  const fmt = n => Math.floor(n).toLocaleString(LANG === 'en' ? 'en-US' : 'ru-RU');
+  const trErr = m => {
+    if (LANG !== 'en' || !m) return m;
+    if (EN[m]) return EN[m];
+    let x = /^Максимум (\d+) шт\. этой карточки$/.exec(m); if (x) return 'Maximum ' + x[1] + ' of this card';
+    return m.startsWith('Ошибка сервера') ? 'Server error' : m;
+  };
+  function applyStatic() {
+    document.documentElement.lang = LANG;
+    $('langbtn').textContent = '🌐 ' + LANG.toUpperCase();
+    document.querySelectorAll('[data-i]').forEach(el => { if (!el.dataset.ru) el.dataset.ru = el.textContent; el.textContent = tr(el.dataset.ru); });
+    document.querySelectorAll('[data-ip]').forEach(el => { if (!el.dataset.ru) el.dataset.ru = el.placeholder; el.placeholder = tr(el.dataset.ru); });
+    document.querySelectorAll('[data-ia]').forEach(el => { if (!el.dataset.ru) el.dataset.ru = el.getAttribute('aria-label'); el.setAttribute('aria-label', tr(el.dataset.ru)); });
+  }
+  function setLang(l) {
+    LANG = l; try { localStorage.setItem('wc_lang', l); } catch (e) {}
+    applyStatic();
+    if (S) { render(); updUp(); if ($('t-top').classList.contains('on')) showTab('top'); }
+  }
   let S = null, pending = 0, last = Date.now(), flushTimer = null, chain = Promise.resolve(), curSkin = null;
 
   const evOn = () => S && S.event && S.event.active;
@@ -265,16 +295,16 @@
   }
   function handle(r) {
     if (r.state) setState(r.state);
-    if (!r.ok && r.error) toast(r.error);
-    if (r.state && r.state.away) toast('Пока вас не было: +' + fmt(r.state.away) + ' монет');
-    if (r.lucky) { toast('🍀 Редкий клик! +' + fmt(r.lucky * r.luckyBonus)); tg && tg.HapticFeedback && tg.HapticFeedback.notificationOccurred('success'); }
+    if (!r.ok && r.error) toast(trErr(r.error));
+    if (r.state && r.state.away) toast(tr('Пока вас не было: +{0} монет', fmt(r.state.away)));
+    if (r.lucky) { toast(tr('🍀 Редкий клик! +{0}', fmt(r.lucky * r.luckyBonus))); tg && tg.HapticFeedback && tg.HapticFeedback.notificationOccurred('success'); }
     return r;
   }
   async function sendTaps() {
     if (!pending) return;
     const n = pending; pending = 0;
     const r = await api('tap', { n });
-    if (!r.ok && !r.state) { pending += n; toast(r.error); return; }
+    if (!r.ok && !r.state) { pending += n; toast(trErr(r.error)); return; }
     handle(r);
   }
   const flush = () => queue(sendTaps);
@@ -313,24 +343,24 @@
     applySkin(); renderMain();
     if (S.newPrizes && S.newPrizes.length && !przShown) showPrizes(); $('navadmin').hidden = !S.admin;
     $('evb').hidden = !evOn();
-    if (evOn()) $('evtxt').textContent = '🔥 Выходные: ×' + S.event.tapMult + ' к кликам, ×' + S.event.cardMult + ' к карточкам · до конца ';
-    $('refcard').innerHTML = '<div class="card"><b>Пригласи друга</b><p>За каждого друга, который впервые зайдёт в игру по вашей ссылке, вы получите ' + fmt(S.refReward) +
-      ' монет. Приглашено друзей: ' + S.refs + '</p>' + (S.refLink ? '<div class="btns" style="flex-direction:row;margin-top:10px"><button class="act ok" data-share="1">Поделиться</button><button class="act" data-copy="1">Скопировать ссылку</button></div>'
-        : '<p>Реферальная ссылка пока не настроена.</p>') + '</div>';
-    $('rate').textContent = S.rate ? '🪙 +' + fmt(S.rate * evCard()) + ' в час' + (evOn() ? ' 🔥' : '') : '';
-    $('cardnote').textContent = 'Карточки дают монеты, даже когда игра закрыта: первые ' + S.offline.hours + ' ч отсутствия полностью, дальше в ' + S.offline.slow + ' раз медленнее. Каждую карточку можно купить до ' + S.cards[0].max + ' раз.';
+    if (evOn()) $('evtxt').textContent = tr('🔥 Выходные: ×{0} к кликам, ×{1} к карточкам · до конца ', S.event.tapMult, S.event.cardMult);
+    $('refcard').innerHTML = '<div class="card"><b>' + tr('Пригласи друга') + '</b><p>' + tr('За каждого друга, который впервые зайдёт в игру по вашей ссылке, вы получите {0} монет. Приглашено друзей: {1}', fmt(S.refReward), S.refs) + '</p>' +
+      (S.refLink ? '<div class="btns" style="flex-direction:row;margin-top:10px"><button class="act ok" data-share="1">' + tr('Поделиться') + '</button><button class="act" data-copy="1">' + tr('Скопировать ссылку') + '</button></div>'
+        : '<p>' + tr('Реферальная ссылка пока не настроена.') + '</p>') + '</div>';
+    $('rate').textContent = S.rate ? tr('🪙 +{0} в час', fmt(S.rate * evCard())) + (evOn() ? ' 🔥' : '') : '';
+    $('cardnote').textContent = tr('Карточки дают монеты, даже когда игра закрыта: первые {0} ч отсутствия полностью, дальше в {1} раз медленнее. Каждую карточку можно купить до {2} раз.', S.offline.hours, S.offline.slow, S.cards[0].max);
     $('cards').innerHTML = S.cards.map(c => {
       const full = c.count >= c.max;
-      const btn = full ? '<button class="act" disabled>Максимум</button>'
+      const btn = full ? '<button class="act" disabled>' + tr('Максимум') + '</button>'
         : '<button class="act" data-card="' + c.i + '"' + (S.coins < c.price ? ' disabled' : '') + '>🪙 ' + fmt(c.price) + '</button>';
       return '<div class="card"><div class="top"><div class="sk"><img class="cimg" src="card-' + String(c.i + 1).padStart(2, '0') + '.png" alt=""><div><b>' + c.name + '</b>' +
-        '<p>+' + fmt(c.income) + ' в час за штуку · окупается за ' + c.hours + ' ч</p>' +
-        '<p>Куплено: ' + c.count + ' / ' + c.max + (c.count ? ' · даёт +' + fmt(c.income * c.count) + ' в час' : '') + '</p></div></div>' + btn + '</div></div>';
+        '<p>' + tr('+{0} в час за штуку · окупается за {1} ч', fmt(c.income), c.hours) + '</p>' +
+        '<p>' + tr('Куплено: {0} / {1}', c.count, c.max) + (c.count ? tr(' · даёт +{0} в час', fmt(c.income * c.count)) : '') + '</p></div></div>' + btn + '</div></div>';
     }).join('');
     $('tl').textContent = S.tapLvl + 1; $('el').textContent = S.enLvl + 1; $('rl').textContent = S.regLvl + 1;
-    $('td').textContent = 'Сейчас ' + S.perTap + ' за клик, будет ' + (S.perTap + 1);
-    $('ed').textContent = 'Сейчас ' + S.maxEnergy + ', будет ' + (S.maxEnergy + 100);
-    $('rd').textContent = 'Сейчас ' + S.regen + ' в секунду, будет ' + (S.regen + 1);
+    $('td').textContent = tr('Сейчас {0} за клик, будет {1}', S.perTap, S.perTap + 1);
+    $('ed').textContent = tr('Сейчас {0}, будет {1}', S.maxEnergy, S.maxEnergy + 100);
+    $('rd').textContent = tr('Сейчас {0} в секунду, будет {1}', S.regen, S.regen + 1);
     $('btap').textContent = '🪙 ' + fmt(S.tapCost); $('btap').disabled = S.coins < S.tapCost;
     $('been').textContent = '🪙 ' + fmt(S.enCost); $('been').disabled = S.coins < S.enCost;
     $('bregen').textContent = '🪙 ' + fmt(S.regCost); $('bregen').disabled = S.coins < S.regCost;
@@ -338,35 +368,35 @@
     const caseName = id => (S.cases.find(c => c.id === id) || {}).name;
     $('skins').innerHTML = S.skins.map(k => {
       const cur = k.id === S.skin;
-      const btn = cur ? '<button class="act" disabled>Выбрано</button>'
-        : k.owned ? '<button class="act ok" data-skin="' + k.id + '">Выбрать</button>'
-        : k.case ? '<button class="act" disabled>🔒 Кейс</button>'
-        : k.price === null ? '<button class="act" disabled>🔒 Эксклюзив</button>'
+      const btn = cur ? '<button class="act" disabled>' + tr('Выбрано') + '</button>'
+        : k.owned ? '<button class="act ok" data-skin="' + k.id + '">' + tr('Выбрать') + '</button>'
+        : k.case ? '<button class="act" disabled>' + tr('🔒 Кейс') + '</button>'
+        : k.price === null ? '<button class="act" disabled>' + tr('🔒 Эксклюзив') + '</button>'
         : '<button class="act" data-skin="' + k.id + '"' + (S.coins < k.price ? ' disabled' : '') + '>🪙 ' + fmt(k.price) + '</button>';
-      const sub = k.case ? (k.owned ? 'Из кейса «' + caseName(k.case) + '»' : 'Выпадает из кейса «' + caseName(k.case) + '»') : (k.prize ? (k.owned ? 'Награда сезона: у вас есть' : 'Награда за топ-3 сезона') : k.price === null ? (k.owned ? 'Эксклюзив: у вас есть' : 'Эксклюзив, больше не продаётся') : k.price ? (k.owned ? 'Куплено' : 'Скин за монеты') : 'Бесплатно');
-      return '<div class="card"><div class="top"><div class="sk"><img src="' + SKIN_IMG[k.id] + '" alt=""><div><b>' + k.name + '</b><p>' + sub + '</p></div></div>' + btn + '</div></div>';
+      const sub = k.case ? tr(k.owned ? 'Из кейса «{0}»' : 'Выпадает из кейса «{0}»', caseName(k.case)) : (k.prize ? tr(k.owned ? 'Награда сезона: у вас есть' : 'Награда за топ-3 сезона') : k.price === null ? tr(k.owned ? 'Эксклюзив: у вас есть' : 'Эксклюзив, больше не продаётся') : k.price ? tr(k.owned ? 'Куплено' : 'Скин за монеты') : tr('Бесплатно'));
+      return '<div class="card"><div class="top"><div class="sk"><img src="' + SKIN_IMG[k.id] + '" alt=""><div><b>' + tr(k.name) + '</b><p>' + sub + '</p></div></div>' + btn + '</div></div>';
     }).join('');
     const has = id => (S.skins.find(x => x.id === id) || {}).owned;
-    $('caselist').innerHTML = S.cases.map(c => '<div class="card"><div class="top"><div><b>Кейс «' + c.name + '»</b><p>Повторка: вернётся ' + fmt(c.refund) + ' монет</p></div>' +
-      '<button class="act ok" data-case="' + c.id + '"' + (S.coins < c.price ? ' disabled' : '') + '>Открыть · 🪙 ' + fmt(c.price) + '</button></div><div class="items">' +
+    $('caselist').innerHTML = S.cases.map(c => '<div class="card"><div class="top"><div><b>' + tr('Кейс «{0}»', c.name) + '</b><p>' + tr('Повторка: вернётся {0} монет', fmt(c.refund)) + '</p></div>' +
+      '<button class="act ok" data-case="' + c.id + '"' + (S.coins < c.price ? ' disabled' : '') + '>' + tr('Открыть') + ' · 🪙 ' + fmt(c.price) + '</button></div><div class="items">' +
       c.items.map(i => '<div class="it"><img src="' + SKIN_IMG[i.id] + '" alt=""><b>' + i.name + '</b><span>' + i.chance + '%' + (has(i.id) ? ' ✓' : '') + '</span></div>').join('') + '</div></div>').join('');
 
     const L = S.login, done = L.claimed ? L.day : L.day - 1;
     let cells = '';
     for (let i = 1; i <= L.days; i++)
-      cells += '<div class="day' + (i <= done ? ' done' : (i === L.day ? ' today' : '')) + '"><b>' + i + '</b>' + (i === L.days ? '<img src="card-' + String(L.cardIndex + 1).padStart(2, '0') + '.png" alt="">' : (i * L.step / 1000) + 'к') + '</div>';
-    $('daily').innerHTML = '<div class="card"><b>Ежедневный бонус</b><p>Заходите каждый день: награда растёт до 10-го дня, а на 10-й день ещё и карточка ' + L.cardName + '. Потом всё начинается сначала. Пропущенный день сбрасывает серию.</p>' +
+      cells += '<div class="day' + (i <= done ? ' done' : (i === L.day ? ' today' : '')) + '"><b>' + i + '</b>' + (i === L.days ? '<img src="card-' + String(L.cardIndex + 1).padStart(2, '0') + '.png" alt="">' : (i * L.step / 1000) + tr('к')) + '</div>';
+    $('daily').innerHTML = '<div class="card"><b>' + tr('Ежедневный бонус') + '</b><p>' + tr('Заходите каждый день: награда растёт до 10-го дня, а на 10-й день ещё и карточка {0}. Потом всё начинается сначала. Пропущенный день сбрасывает серию.', L.cardName) + '</p>' +
       '<div class="days">' + cells + '</div>' +
-      (L.claimed ? '<button class="act" disabled>Сегодня получено</button>' : '<button class="act ok" data-login="1">Забрать +' + fmt(L.day * L.step) + (L.day === L.days ? ' + ' + L.cardName : '') + '</button>') + '</div>';
+      (L.claimed ? '<button class="act" disabled>' + tr('Сегодня получено') + '</button>' : '<button class="act ok" data-login="1">' + tr('Забрать +{0}', fmt(L.day * L.step)) + (L.day === L.days ? ' + ' + L.cardName : '') + '</button>') + '</div>';
 
     $('tasks').innerHTML = S.tasks.map(t => {
       const done = t.progress >= t.goal;
       let btn;
-      if (t.claimed) btn = '<button class="act" disabled>Получено</button>';
-      else if (t.once) btn = '<div class="btns"><button class="act" data-open="1" data-link="' + t.link + '">Открыть канал</button><button class="act ok" data-claim="' + t.id + '">Проверить +' + fmt(t.reward) + '</button></div>';
-      else btn = '<button class="act ok" data-claim="' + t.id + '"' + (done ? '' : ' disabled') + '>Забрать +' + fmt(t.reward) + '</button>';
-      const sub = t.once ? 'Разовое задание · награда ' + fmt(t.reward) + ' монет' : 'Награда: ' + fmt(t.reward) + ' монет · ' + fmt(t.progress) + ' / ' + fmt(t.goal);
-      return '<div class="card"><div class="top"><div><b>' + t.title + '</b><p>' + sub + '</p></div>' + btn + '</div>' +
+      if (t.claimed) btn = '<button class="act" disabled>' + tr('Получено') + '</button>';
+      else if (t.once) btn = '<div class="btns"><button class="act" data-open="1" data-link="' + t.link + '">' + tr('Открыть канал') + '</button><button class="act ok" data-claim="' + t.id + '">' + tr('Проверить +{0}', fmt(t.reward)) + '</button></div>';
+      else btn = '<button class="act ok" data-claim="' + t.id + '"' + (done ? '' : ' disabled') + '>' + tr('Забрать +{0}', fmt(t.reward)) + '</button>';
+      const sub = t.once ? tr('Разовое задание · награда {0} монет', fmt(t.reward)) : tr('Награда: {0} монет · {1} / {2}', fmt(t.reward), fmt(t.progress), fmt(t.goal));
+      return '<div class="card"><div class="top"><div><b>' + tr(t.title) + '</b><p>' + sub + '</p></div>' + btn + '</div>' +
              (t.once ? '' : '<div class="bar"><i style="width:' + (t.progress / t.goal * 100) + '%"></i></div>') + '</div>';
     }).join('');
   }
@@ -381,25 +411,25 @@
     ['up', 'cards', 'skins'].forEach(n => $('sg-' + n).hidden = n !== k);
   };
   $('promobtn').onclick = () => {
-    const code = $('promoin').value.trim(); if (!code) return toast('Введите промокод');
-    act('promo', { code }).then(r => { if (r.ok) { toast('Промокод активирован: +' + fmt(r.promo) + ' монет'); $('promoin').value = ''; } });
+    const code = $('promoin').value.trim(); if (!code) return toast(tr('Введите промокод'));
+    act('promo', { code }).then(r => { if (r.ok) { toast(tr('Промокод активирован: +{0} монет', fmt(r.promo))); $('promoin').value = ''; } });
   };
   $('refcard').onclick = e => {
     const d = e.target.dataset || {};
-    if (d.share) { const u = 'https://t.me/share/url?url=' + encodeURIComponent(S.refLink) + '&text=' + encodeURIComponent('Играй в Wolf Clicker и собирай монеты! 🐺');
+    if (d.share) { const u = 'https://t.me/share/url?url=' + encodeURIComponent(S.refLink) + '&text=' + encodeURIComponent(tr('Играй в Wolf Clicker и собирай монеты! 🐺'));
       tg && tg.openTelegramLink ? tg.openTelegramLink(u) : window.open(u, '_blank'); }
     else if (d.copy) {
-      const done = () => toast('Ссылка скопирована');
+      const done = () => toast(tr('Ссылка скопирована'));
       if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(S.refLink).then(done, () => toast(S.refLink));
       else { const t = document.createElement('textarea'); t.value = S.refLink; document.body.appendChild(t); t.select(); try { document.execCommand('copy'); done(); } catch (x) { toast(S.refLink); } t.remove(); }
     }
   };
   $('skins').onclick = e => { const id = e.target.dataset && e.target.dataset.skin; if (id) act('skin', { id }); };
-  $('daily').onclick = e => { if (e.target.dataset && e.target.dataset.login) act('login').then(r => r.ok && toast(r.card && r.card.given ? 'Бонус получен! Карточка ' + r.card.name + ' теперь ваша' : 'Бонус получен!')); };
+  $('daily').onclick = e => { if (e.target.dataset && e.target.dataset.login) act('login').then(r => r.ok && toast(r.card && r.card.given ? tr('Бонус получен! Карточка {0} теперь ваша', r.card.name) : tr('Бонус получен!'))); };
   $('tasks').onclick = e => {
     const d = e.target.dataset || {};
     if (d.open) { const L = d.link || CHANNEL_LINK; tg && tg.openTelegramLink ? tg.openTelegramLink(L) : window.open(L, '_blank'); }
-    else if (d.claim) act('claim', { task: d.claim }).then(r => r.ok && toast('Награда получена!'));
+    else if (d.claim) act('claim', { task: d.claim }).then(r => r.ok && toast(tr('Награда получена!')));
   };
 
   // ---- Админ-панель (доступна только если сервер подтвердил ваш ID) ----
@@ -441,19 +471,19 @@
   };
 
   // ---- Сезоны ----
-  const fmtLeft = s => { const d = Math.floor(s / 86400), h = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60); return (d ? d + ' д ' : '') + h + ' ч ' + m + ' мин'; };
+  const fmtLeft = s => { const d = Math.floor(s / 86400), h = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60); return (d ? d + tr(' д ') : '') + h + tr(' ч ') + m + tr(' мин'); };
   const MEDAL = ['🥇', '🥈', '🥉'];
-  const skinName = id => (S.skins.find(x => x.id === id) || {}).name || id;
+  const skinName = id => tr((S.skins.find(x => x.id === id) || {}).name || id);
   async function loadSeason() {
     const r = await act('season_top'); if (!r.ok) return;
-    const prizes = r.prizes.map((p, i) => '<div class="it">' + (p.kind === 'skin' ? '<img src="' + SKIN_IMG[p.val] + '" alt=""><b>' + MEDAL[i] + ' ' + (i + 1) + ' место</b><span>' + skinName(p.val) + '</span>'
-      : '<b style="font-size:30px;margin:8px 0">' + MEDAL[i] + '</b><b>' + (i + 1) + ' место</b><span>🪙 ' + fmt(p.val) + '</span>') + '</div>').join('');
-    const prev = r.prev ? '<p class="note">Прошлый сезон: ' + r.prev.winners.map(w => MEDAL[w.place - 1] + ' ' + w.name.replace(/[<>&]/g, '')).join(' · ') + '</p>' : '';
-    $('seasoninfo').innerHTML = '<div class="card"><b>Сезон ' + r.n + '</b><p>До конца: ' + fmtLeft(r.endsIn) + '</p><p>Ваши очки: ' + fmt(r.pts) + (r.rank ? ' · ваше место: ' + r.rank : '') +
-      '</p><p class="note">Очки: монеты, заработанные кликами. Награды за топ-3:</p><div class="items">' + prizes + '</div>' + prev + '</div>';
+    const prizes = r.prizes.map((p, i) => '<div class="it">' + (p.kind === 'skin' ? '<img src="' + SKIN_IMG[p.val] + '" alt=""><b>' + MEDAL[i] + ' ' + tr('{0} место', i + 1) + '</b><span>' + skinName(p.val) + '</span>'
+      : '<b style="font-size:30px;margin:8px 0">' + MEDAL[i] + '</b><b>' + tr('{0} место', i + 1) + '</b><span>🪙 ' + fmt(p.val) + '</span>') + '</div>').join('');
+    const prev = r.prev ? '<p class="note">' + tr('Прошлый сезон:') + ' ' + r.prev.winners.map(w => MEDAL[w.place - 1] + ' ' + w.name.replace(/[<>&]/g, '')).join(' · ') + '</p>' : '';
+    $('seasoninfo').innerHTML = '<div class="card"><b>' + tr('Сезон {0}', r.n) + '</b><p>' + tr('До конца:') + ' ' + fmtLeft(r.endsIn) + '</p><p>' + tr('Ваши очки:') + ' ' + fmt(r.pts) + (r.rank ? tr(' · ваше место: {0}', r.rank) : '') +
+      '</p><p class="note">' + tr('Очки: монеты, заработанные кликами. Награды за топ-3:') + '</p><div class="items">' + prizes + '</div>' + prev + '</div>';
     const me = ((tg && tg.initDataUnsafe && tg.initDataUnsafe.user) || {}).first_name;
     $('seasonlist').innerHTML = r.top.map((p, i) => '<div class="row-top' + (p.name === me ? ' me' : '') + '"><span>' + (MEDAL[i] || (i + 1) + '.') + ' ' + p.name.replace(/[<>&]/g, '') + '</span><b>' + fmt(p.pts) + '</b></div>').join('') ||
-      '<p class="note">Пока никто не набрал очков. Покликайте первым!</p>';
+      '<p class="note">' + tr('Пока никто не набрал очков. Покликайте первым!') + '</p>';
   }
   $('rkseg').onclick = e => {
     const k = e.target.dataset && e.target.dataset.rk; if (!k) return;
@@ -466,8 +496,8 @@
     przShown = true;
     $('przbody').innerHTML = S.newPrizes.map(p => {
       const [kind, val] = p.prize.split(':');
-      return '<div style="margin:10px 0;color:#fff"><p>' + MEDAL[p.place - 1] + ' Сезон ' + p.season + ': вы заняли ' + p.place + ' место!</p>' +
-        (kind === 'skin' ? '<img src="' + SKIN_IMG[val] + '" alt="" style="width:150px;height:150px;object-fit:contain"><p>Скин «' + skinName(val) + '» теперь ваш. Он в магазине, в разделе «Скины».</p>' : '<p>Награда: 🪙 ' + fmt(val) + ' монет</p>') + '</div>';
+      return '<div style="margin:10px 0;color:#fff"><p>' + MEDAL[p.place - 1] + ' ' + tr('Сезон {0}: вы заняли {1} место!', p.season, p.place) + '</p>' +
+        (kind === 'skin' ? '<img src="' + SKIN_IMG[val] + '" alt="" style="width:150px;height:150px;object-fit:contain"><p>' + tr('Скин «{0}» теперь ваш. Он в магазине, в разделе «Скины».', skinName(val)) + '</p>' : '<p>' + tr('Награда: 🪙 {0} монет', fmt(val)) + '</p>') + '</div>';
     }).join('');
     $('prz').hidden = false;
   }
@@ -475,7 +505,7 @@
 
   async function loadTop() {
     const r = await act('top'); if (!r.ok) return;
-    $('rank').textContent = 'Ваше место: ' + r.rank + ' · по всем заработанным монетам';
+    $('rank').textContent = tr('Ваше место: {0} · по всем заработанным монетам', r.rank);
     const me = ((tg && tg.initDataUnsafe && tg.initDataUnsafe.user) || {}).first_name;
     $('toplist').innerHTML = r.top.map((p, i) =>
       '<div class="row-top' + (p.name === me ? ' me' : '') + '"><span>' + (['🥇', '🥈', '🥉'][i] || (i + 1) + '.') + ' ' +
@@ -504,7 +534,7 @@
     $('upx').textContent = '×' + upMult; $('upch').textContent = ch + '%';
     $('upchips').innerHTML = S.upgrade.mults.map(x => '<button class="chip' + (x.mult === upMult ? ' on' : '') + '" data-mult="' + x.mult + '">×' + x.mult + '</button>').join('');
     const bet = Math.floor(Number($('upbet').value));
-    $('upwin').textContent = bet > 0 ? 'Выигрыш при успехе: ' + fmt(bet * upMult) + ' монет (+' + fmt(bet * upMult - bet) + ')' : 'Шанс успеха: ' + ch + '%';
+    $('upwin').textContent = bet > 0 ? tr('Выигрыш при успехе: {0} монет (+{1})', fmt(bet * upMult), fmt(bet * upMult - bet)) : tr('Шанс успеха: {0}%', ch);
   }
   $('upchips').onclick = e => { const m = parseFloat(e.target.dataset && e.target.dataset.mult); if (m) { upMult = m; updUp(); } };
   $('upbet').oninput = updUp;
@@ -517,8 +547,8 @@
   async function upSpin() {
     if (upBusy || !S) return;
     const bet = Math.floor(Number($('upbet').value));
-    if (!bet || bet < 1) return toast('Введите ставку');
-    if (bet > Math.floor(S.coins)) return toast('Не хватает монет');
+    if (!bet || bet < 1) return toast(tr('Введите ставку'));
+    if (bet > Math.floor(S.coins)) return toast(tr('Не хватает монет'));
     upBusy = true; $('upres').textContent = '';
     const r = await queue(async () => { await sendTaps(); return api('upgrade', { bet, mult: upMult }); });
     if (!r.ok) { handle(r); upBusy = false; return; }
@@ -527,7 +557,7 @@
     setTimeout(() => {
       handle(r); upBusy = false;
       $('upres').style.color = r.win ? '#3ecf6e' : '#ff7a7f';
-      $('upres').textContent = r.win ? 'Выигрыш! +' + fmt(r.payout - r.bet) + ' монет' : 'Проигрыш: −' + fmt(r.bet) + ' монет';
+      $('upres').textContent = r.win ? tr('Выигрыш! +{0} монет', fmt(r.payout - r.bet)) : tr('Проигрыш: −{0} монет', fmt(r.bet));
       tg && tg.HapticFeedback && tg.HapticFeedback.notificationOccurred(r.win ? 'success' : 'error');
       updUp();
     }, 3800);
@@ -556,9 +586,9 @@
   function showResult(r) {
     $('rollwin').hidden = true;
     $('rollres').innerHTML = '<img src="' + SKIN_IMG[r.won.id] + '" alt="">' +
-      (r.dup ? '<h3 style="color:#fff;margin:6px 0">Повторка: «' + r.won.name + '»</h3><p>Такой скин уже есть. Возвращено ' + fmt(r.refund) + ' монет.</p>'
-             : '<h3 style="color:#fff;margin:6px 0">Новый скин: «' + r.won.name + '»!</h3>') +
-      (r.dup ? '' : '<button class="act ok" id="rollwear">Надеть</button>') + '<button class="act" id="rollclose">Закрыть</button>';
+      (r.dup ? '<h3 style="color:#fff;margin:6px 0">' + tr('Повторка: «{0}»', r.won.name) + '</h3><p>' + tr('Такой скин уже есть. Возвращено {0} монет.', fmt(r.refund)) + '</p>'
+             : '<h3 style="color:#fff;margin:6px 0">' + tr('Новый скин: «{0}»!', r.won.name) + '</h3>') +
+      (r.dup ? '' : '<button class="act ok" id="rollwear">' + tr('Надеть') + '</button>') + '<button class="act" id="rollclose">' + tr('Закрыть') + '</button>';
     $('rollres').hidden = false;
     tg && tg.HapticFeedback && tg.HapticFeedback.notificationOccurred(r.dup ? 'warning' : 'success');
     $('rollclose').onclick = () => { $('roll').hidden = true; rolling = false; };
@@ -592,6 +622,8 @@
   }, 1000);
   document.addEventListener('visibilitychange', () => { if (document.hidden) flush(); else act('state'); });
 
+  $('langbtn').onclick = () => setLang(LANG === 'ru' ? 'en' : 'ru');
+  applyStatic();
   if (tg && tg.initData) act('state');
 </script>
 </body>
